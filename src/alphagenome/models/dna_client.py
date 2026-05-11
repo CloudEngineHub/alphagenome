@@ -643,6 +643,7 @@ class DnaClient(dna_model.DnaModel):
       interval_scorers: Sequence[interval_scorers_lib.IntervalScorerTypes] = (),
       *,
       organism: Organism = Organism.HOMO_SAPIENS,
+      merge_stranded_gene_tracks: bool = True,
   ) -> list[anndata.AnnData]:
     """Generate interval scores for a single given interval.
 
@@ -652,6 +653,8 @@ class DnaClient(dna_model.DnaModel):
         interval scorers are provided, the recommended interval scorers for the
         organism will be used.
       organism: Organism to use for the prediction.
+      merge_stranded_gene_tracks: If True, merges gene-centric scores from
+        stranded tracks into a single, unstranded track.
 
     Returns:
       List of `AnnData` interval scores.
@@ -681,6 +684,7 @@ class DnaClient(dna_model.DnaModel):
         interval_scorers=[scorer.to_proto() for scorer in interval_scorers],
         organism=organism.to_proto(),
         model_version=self._model_version,
+        merge_stranded_gene_tracks=merge_stranded_gene_tracks,
     )
     responses = dna_model_service_pb2_grpc.DnaModelServiceStub(
         self._channel
@@ -698,6 +702,7 @@ class DnaClient(dna_model.DnaModel):
       variant_scorers: Sequence[variant_scorers_lib.VariantScorerTypes] = (),
       *,
       organism: Organism = Organism.HOMO_SAPIENS,
+      merge_stranded_gene_tracks: bool = True,
   ) -> list[anndata.AnnData]:
     """Generate variant scores for a single given DNA variant.
 
@@ -708,6 +713,8 @@ class DnaClient(dna_model.DnaModel):
         variant scorers are provided, the recommended variant scorers for the
         organism will be used.
       organism: Organism to use for the prediction.
+      merge_stranded_gene_tracks: If True, merges gene-centric scores from
+        stranded tracks into a single, unstranded track.
 
     Returns:
       List of `AnnData` variant scores.
@@ -747,6 +754,7 @@ class DnaClient(dna_model.DnaModel):
         organism=organism.to_proto(),
         variant_scorers=[vs.to_proto() for vs in variant_scorers],
         model_version=self._model_version,
+        merge_stranded_gene_tracks=merge_stranded_gene_tracks,
     )
     responses = dna_model_service_pb2_grpc.DnaModelServiceStub(
         self._channel
@@ -766,6 +774,7 @@ class DnaClient(dna_model.DnaModel):
       interval_variant: genome.Variant | None = None,
       progress_bar: bool = True,
       max_workers: int = dna_model.DEFAULT_MAX_WORKERS,
+      merge_stranded_gene_tracks: bool = True,
   ) -> list[list[anndata.AnnData]]:
     """Generate in-silico mutagenesis (ISM) variant scores for a given interval.
 
@@ -781,6 +790,8 @@ class DnaClient(dna_model.DnaModel):
         unaltered reference sequence is used.
       progress_bar: If True, show a progress bar.
       max_workers: Number of parallel workers to use.
+      merge_stranded_gene_tracks: If True, merges gene-centric scores from
+        stranded tracks into a single, unstranded track.
 
     Returns:
       List of variant scores for each variant in the ISM interval.
@@ -820,6 +831,7 @@ class DnaClient(dna_model.DnaModel):
           interval_variant=interval_variant.to_proto()
           if interval_variant is not None
           else None,
+          merge_stranded_gene_tracks=merge_stranded_gene_tracks,
       )
       responses = dna_model_service_pb2_grpc.DnaModelServiceStub(
           self._channel

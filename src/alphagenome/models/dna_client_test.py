@@ -1054,6 +1054,7 @@ class ClientTest(parameterized.TestCase):
           dna_client.Organism.MUS_MUSCULUS,
       ],
       bytes_per_chunk=[0, 1024],
+      merge_stranded_gene_tracks=[True, False],
   )
   def test_score_interval(
       self,
@@ -1062,11 +1063,14 @@ class ClientTest(parameterized.TestCase):
       expected,
       organism,
       bytes_per_chunk,
+      merge_stranded_gene_tracks,
   ):
+    received_requests = []
 
     def _mock_generate(requests, metadata):
       del metadata
       for request in requests:
+        received_requests.append(request)
         yield from _generate_interval_scoring_protos(
             scores=expected,
             bytes_per_chunk=bytes_per_chunk,
@@ -1080,12 +1084,25 @@ class ClientTest(parameterized.TestCase):
         interval=interval,
         organism=organism,
         interval_scorers=scorers,
+        merge_stranded_gene_tracks=merge_stranded_gene_tracks,
     )
 
     for expected_anndata, output_anndata in zip(expected, outputs):
       self._assert_anndata_equal(expected_anndata, output_anndata)
 
     mock_stream.assert_called_once()
+
+    self.assertCountEqual(
+        received_requests,
+        [
+            dna_model_service_pb2.ScoreIntervalRequest(
+                interval=interval.to_proto(),
+                organism=organism.to_proto(),
+                interval_scorers=[scorer.to_proto() for scorer in scorers],
+                merge_stranded_gene_tracks=merge_stranded_gene_tracks,
+            )
+        ],
+    )
 
   @parameterized.product(organism=list(dna_client.Organism))
   def test_recommended_interval_scorers(self, organism):
@@ -1382,6 +1399,7 @@ class ClientTest(parameterized.TestCase):
           dna_client.Organism.MUS_MUSCULUS,
       ],
       bytes_per_chunk=[0, 1024],
+      merge_stranded_gene_tracks=[True, False],
   )
   def test_score_variant(
       self,
@@ -1391,11 +1409,15 @@ class ClientTest(parameterized.TestCase):
       expected,
       organism,
       bytes_per_chunk,
+      merge_stranded_gene_tracks,
   ):
+
+    received_requests = []
 
     def _mock_generate(requests, metadata):
       del metadata
       for request in requests:
+        received_requests.append(request)
         yield from _generate_variant_scoring_protos(
             scores=expected,
             bytes_per_chunk=bytes_per_chunk,
@@ -1410,12 +1432,25 @@ class ClientTest(parameterized.TestCase):
         variant=variant,
         organism=organism,
         variant_scorers=scorers,
+        merge_stranded_gene_tracks=merge_stranded_gene_tracks,
     )
 
     for expected_anndata, output_anndata in zip(expected, outputs):
       self._assert_anndata_equal(expected_anndata, output_anndata)
 
     mock_stream.assert_called_once()
+    self.assertCountEqual(
+        received_requests,
+        [
+            dna_model_service_pb2.ScoreVariantRequest(
+                interval=interval.to_proto(),
+                variant=variant.to_proto(),
+                organism=organism.to_proto(),
+                variant_scorers=[scorer.to_proto() for scorer in scorers],
+                merge_stranded_gene_tracks=merge_stranded_gene_tracks,
+            )
+        ],
+    )
 
   def test_duplicate_variant_scorers_raises_error(self):
     model = dna_client.DnaClient(channel=mock.create_autospec(grpc.Channel))
@@ -1807,6 +1842,7 @@ class ClientTest(parameterized.TestCase):
           ),
       ),
       bytes_per_chunk=[0, 1024],
+      merge_stranded_gene_tracks=[True, False],
   )
   def test_score_ism_variant(
       self,
@@ -1817,11 +1853,14 @@ class ClientTest(parameterized.TestCase):
       example_scores,
       expected_variants,
       interval_variant: genome.Variant | None,
+      merge_stranded_gene_tracks: bool,
   ):
+    received_requests = []
 
     def _mock_generate(requests, metadata):
       del metadata
       for request in requests:
+        received_requests.append(request)
         ism_interval = genome.Interval.from_proto(request.ism_interval)
         ism_sequence = 'A' * ism_interval.width
         if request.HasField('interval_variant'):
@@ -1851,6 +1890,7 @@ class ClientTest(parameterized.TestCase):
         ism_interval=ism_interval,
         variant_scorers=scorers,
         interval_variant=interval_variant,
+        merge_stranded_gene_tracks=merge_stranded_gene_tracks,
     )
     self.assertLen(ism_scores, len(expected_variants))
     ism_scores = sorted(ism_scores, key=lambda x: str(x[0].uns['variant']))
@@ -1861,6 +1901,34 @@ class ClientTest(parameterized.TestCase):
         expected = example_output.copy()
         expected.uns['variant'] = expected_variant
         self._assert_anndata_equal(expected, output)
+
+    expected_requests = []
+    for position in range(
+        0, ism_interval.width, dna_client.MAX_ISM_INTERVAL_WIDTH
+    ):
+      expected_requests.append(
+          dna_model_service_pb2.ScoreIsmVariantRequest(
+              interval=interval.to_proto(),
+              ism_interval=genome.Interval(
+                  ism_interval.chromosome,
+                  ism_interval.start + position,
+                  min(
+                      ism_interval.start
+                      + position
+                      + dna_client.MAX_ISM_INTERVAL_WIDTH,
+                      ism_interval.end,
+                  ),
+              ).to_proto(),
+              variant_scorers=[scorer.to_proto() for scorer in scorers],
+              organism=dna_client.Organism.HOMO_SAPIENS.to_proto(),
+              interval_variant=interval_variant.to_proto()
+              if interval_variant
+              else None,
+              merge_stranded_gene_tracks=merge_stranded_gene_tracks,
+          )
+      )
+
+    self.assertCountEqual(expected_requests, received_requests)
 
   def test_score_negative_strand_ism_interval_raises_error(self):
     model = dna_client.DnaClient(channel=mock.create_autospec(grpc.Channel))

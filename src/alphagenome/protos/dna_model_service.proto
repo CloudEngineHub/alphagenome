@@ -170,6 +170,10 @@ message ScoreIntervalRequest {
 
   // Model version to use.
   string model_version = 4;
+
+  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // track.
+  bool merge_stranded_gene_tracks = 5;
 }
 
 // Response message for scoring an interval.
@@ -202,6 +206,10 @@ message ScoreVariantRequest {
 
   // Model version to use.
   string model_version = 5;
+
+  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // track.
+  bool merge_stranded_gene_tracks = 6;
 }
 
 // Response message for scoring a variant.
@@ -239,6 +247,10 @@ message ScoreIsmVariantRequest {
 
   // Model version to use.
   string model_version = 5;
+
+  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // track.
+  bool merge_stranded_gene_tracks = 7;
 }
 
 // Response message for scoring an in-silico mutagenesis (ISM) interval.
