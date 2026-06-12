@@ -18,6 +18,8 @@ import anndata
 import numpy as np
 import pandas as pd
 
+_TRACK_METADATA_COLUMNS = frozenset(('name', 'strand'))
+
 
 def _validate_track_metadata(metadata: pd.DataFrame) -> None:
   """Validate the track metadata positive and negative track order."""
@@ -80,7 +82,7 @@ def merge_stranded_track_metadata(
     The DataFrame with the merged stranded track metadata.
   """
 
-  if not {'name', 'strand'}.issubset(track_metadata.columns):
+  if not _TRACK_METADATA_COLUMNS.issubset(track_metadata.columns):
     raise ValueError('Track metadata must contain "name" and "strand" columns.')
 
   if validate_tracks:
@@ -122,7 +124,7 @@ def merge_stranded_gene_tracks(
   if not {'gene_id', 'strand'}.issubset(scores.obs.columns):
     return scores
 
-  if not {'name', 'strand'}.issubset(scores.var.columns):
+  if not _TRACK_METADATA_COLUMNS.issubset(scores.var.columns):
     raise ValueError('Track metadata must contain "name" and "strand" columns.')
 
   if validate_tracks:
@@ -156,4 +158,76 @@ def merge_stranded_gene_tracks(
       obs=scores.obs,
       var=merged_metadata,
       layers=merged_layers,
+  )
+
+
+def unmerge_stranded_gene_tracks(
+    scores: anndata.AnnData,
+    *,
+    track_metadata: pd.DataFrame,
+    validate_tracks: bool = True,
+) -> anndata.AnnData:
+  """Unmerges gene scores from merged tracks back into stranded tracks.
+
+  This reverses the operation performed by `merge_stranded_gene_tracks`. Given
+  merged scores with unstranded tracks and the original stranded track metadata,
+  it reconstructs the stranded AnnData by placing each gene's scores into the
+  strand-matched track columns and NaN into mismatched columns.
+
+  Args:
+    scores: The AnnData containing merged (unstranded) gene scores.
+    track_metadata: The original stranded track metadata DataFrame that was
+      present before merging. Must contain 'name' and 'strand' columns.
+    validate_tracks: If True, validate that the positive and negative tracks
+      have the same ordered names.
+
+  Returns:
+    An AnnData object with the scores split back into stranded tracks.
+  """
+  if not {'gene_id', 'strand'}.issubset(scores.obs.columns):
+    return scores
+
+  if not _TRACK_METADATA_COLUMNS.issubset(
+      track_metadata.columns
+  ) or not _TRACK_METADATA_COLUMNS.issubset(scores.var.columns):
+    raise ValueError('Track metadata must contain "name" and "strand" columns.')
+
+  if validate_tracks:
+    if not all(scores.var['strand'] == '.'):
+      raise ValueError('Scores must have all unstranded tracks to unmerge.')
+
+    missing_tracks = track_metadata['name'].isin(scores.var['name'])
+    if not missing_tracks.all():
+      raise ValueError(
+          'Scores missing tracks to unmerge! Missing tracks: '
+          f'{track_metadata[~missing_tracks]["name"].values}.'
+      )
+
+  positive_gene_mask = ((scores.obs['strand'] == '+').values)[:, np.newaxis]
+
+  positive_track_mask = (track_metadata['strand'] == '+').values[np.newaxis, :]
+  negative_track_mask = (track_metadata['strand'] == '-').values[np.newaxis, :]
+
+  track_name_indices = track_metadata['name'].map(
+      pd.Series(scores.var.reset_index().index, index=scores.var['name'])
+  )
+
+  def _unmerge_scores(values: np.ndarray) -> np.ndarray:
+    result = values[:, track_name_indices]
+
+    # Set mismatched stranded track scores to NaN.
+    result[~positive_gene_mask & positive_track_mask] = np.nan
+    result[positive_gene_mask & negative_track_mask] = np.nan
+    return result
+
+  unmerged_scores = _unmerge_scores(scores.X)
+  unmerged_layers = {}
+  for k, v in scores.layers.items():
+    unmerged_layers[k] = _unmerge_scores(v)
+
+  return anndata.AnnData(
+      unmerged_scores,
+      obs=scores.obs,
+      var=track_metadata,
+      layers=unmerged_layers,
   )

@@ -20,6 +20,14 @@ import numpy as np
 import pandas as pd
 
 
+def _assert_anndata_equal(result: anndata.AnnData, expected: anndata.AnnData):
+  np.testing.assert_array_equal(result.X, expected.X)
+  pd.testing.assert_frame_equal(result.obs, expected.obs)
+  pd.testing.assert_frame_equal(result.var, expected.var)
+  for k, v in expected.layers.items():
+    np.testing.assert_array_equal(result.layers[k], v)
+
+
 class VariantScoringUtilsTest(parameterized.TestCase):
 
   @parameterized.named_parameters(
@@ -140,7 +148,9 @@ class VariantScoringUtilsTest(parameterized.TestCase):
       dict(
           testcase_name='MergeGeneScoresWithLayers',
           scores=anndata.AnnData(
-              X=np.arange(9, dtype=np.float32).reshape((3, 3)),
+              X=np.array(
+                  [[np.nan, 1.0, 2.0], [3.0, np.nan, 5.0], [6.0, np.nan, 8.0]]
+              ),
               obs=pd.DataFrame(
                   {
                       'gene_id': ['gene_a', 'gene_b', 'gene_c'],
@@ -156,9 +166,11 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   index=['0', '1', '2'],
               ),
               layers={
-                  'quantiles': (
-                      np.arange(1, 10, dtype=np.float32).reshape((3, 3))
-                  ),
+                  'quantiles': np.array([
+                      [np.nan, 2.0, 3.0],
+                      [4.0, np.nan, 6.0],
+                      [7.0, np.nan, 9.0],
+                  ]),
               },
           ),
           expected=anndata.AnnData(
@@ -226,7 +238,6 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                       [3.0, np.nan, 4.0],
                       [5.0, np.nan, 6.0],
                   ],
-                  dtype=np.float32,
               ),
               obs=pd.DataFrame(
                   {
@@ -244,7 +255,7 @@ class VariantScoringUtilsTest(parameterized.TestCase):
               ),
           ),
           expected=anndata.AnnData(
-              X=np.array([[1.0], [3.0], [5.0]], dtype=np.float32),
+              X=np.array([[1.0], [3.0], [5.0]]),
               obs=pd.DataFrame(
                   {
                       'gene_id': ['gene_a', 'gene_b', 'gene_c'],
@@ -257,19 +268,45 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   index=['0'],
               ),
           ),
+          expected_unmerged=anndata.AnnData(
+              X=np.array(
+                  [
+                      [np.nan, 1.0, 1.0],
+                      [3.0, np.nan, 3.0],
+                      [5.0, np.nan, 5.0],
+                  ],
+              ),
+              obs=pd.DataFrame(
+                  {
+                      'gene_id': ['gene_a', 'gene_b', 'gene_c'],
+                      'strand': ['-', '+', '+'],
+                  },
+                  index=['0', '1', '2'],
+              ),
+              var=pd.DataFrame(
+                  {
+                      'name': ['track1', 'track1', 'track1'],
+                      'strand': ['+', '-', '.'],
+                  },
+                  index=['0', '1', '2'],
+              ),
+          ),
       ),
   )
   def test_merge_stranded_gene_tracks(
       self,
       scores: anndata.AnnData,
       expected: anndata.AnnData,
+      expected_unmerged: anndata.AnnData | None = None,
   ):
     result = variant_scoring_utils.merge_stranded_gene_tracks(scores)
-    np.testing.assert_array_equal(result.X, expected.X)
-    pd.testing.assert_frame_equal(result.obs, expected.obs)
-    pd.testing.assert_frame_equal(result.var, expected.var)
-    for k, v in expected.layers.items():
-      np.testing.assert_array_equal(result.layers[k], v)
+    _assert_anndata_equal(result, expected)
+
+    round_trip = variant_scoring_utils.unmerge_stranded_gene_tracks(
+        result, track_metadata=scores.var
+    )
+    expected_unmerged = expected_unmerged or scores
+    _assert_anndata_equal(round_trip, expected_unmerged)
 
   @parameterized.named_parameters(
       dict(
@@ -387,6 +424,101 @@ class VariantScoringUtilsTest(parameterized.TestCase):
   ):
     with self.assertRaisesRegex(ValueError, expected_error):
       variant_scoring_utils.merge_stranded_gene_tracks(scores)
+
+  @parameterized.named_parameters(
+      dict(
+          testcase_name='MissingTrackNames',
+          scores=anndata.AnnData(
+              X=np.zeros((1, 1), dtype=np.float32),
+              obs=pd.DataFrame(
+                  {'gene_id': ['gene1'], 'strand': ['+']}, index=['0']
+              ),
+              var=pd.DataFrame({'strand': '.'}, index=['0']),
+          ),
+          track_metadata=pd.DataFrame(
+              {'name': 'track1', 'strand': '.'}, index=['0']
+          ),
+          expected_error=(
+              'Track metadata must contain "name" and "strand" columns.'
+          ),
+      ),
+      dict(
+          testcase_name='ScoresNotUnstranded',
+          scores=anndata.AnnData(
+              X=np.zeros((1, 3), dtype=np.float32),
+              obs=pd.DataFrame(
+                  {'gene_id': ['gene1'], 'strand': ['+']}, index=['0']
+              ),
+              var=pd.DataFrame(
+                  {
+                      'name': ['t1', 't2', 't3'],
+                      'strand': ['+', '.', '.'],
+                  },
+                  index=['0', '1', '2'],
+              ),
+          ),
+          track_metadata=pd.DataFrame(
+              {'name': ['t1', 't2', 't3'], 'strand': ['.', '.', '.']},
+              index=['0', '1', '2'],
+          ),
+          expected_error='Scores must have all unstranded tracks to unmerge.',
+      ),
+      dict(
+          testcase_name='MissingStrand',
+          scores=anndata.AnnData(
+              X=np.zeros((1, 3), dtype=np.float32),
+              obs=pd.DataFrame(
+                  {'gene_id': ['gene1'], 'strand': ['+']}, index=['0']
+              ),
+              var=pd.DataFrame(
+                  {
+                      'name': ['t1', 't2', 't3'],
+                      'strand': ['.', '.', '.'],
+                  },
+                  index=['0', '1', '2'],
+              ),
+          ),
+          track_metadata=pd.DataFrame(
+              {'name': ['t1', 't2', 't3']}, index=['0', '1', '2']
+          ),
+          expected_error=(
+              'Track metadata must contain "name" and "strand" columns.'
+          ),
+      ),
+      dict(
+          testcase_name='MissingTracks',
+          scores=anndata.AnnData(
+              X=np.zeros((1, 2), dtype=np.float32),
+              obs=pd.DataFrame(
+                  {'gene_id': ['gene1'], 'strand': ['+']}, index=['0']
+              ),
+              var=pd.DataFrame(
+                  {
+                      'name': ['t1', 't2'],
+                      'strand': ['.', '.'],
+                  },
+                  index=['0', '1'],
+              ),
+          ),
+          track_metadata=pd.DataFrame(
+              {'name': ['t1', 't2', 't3'], 'strand': ['.', '.', '.']},
+              index=['0', '1', '2'],
+          ),
+          expected_error=(
+              r"Scores missing tracks to unmerge! Missing tracks: \['t3'\]"
+          ),
+      ),
+  )
+  def test_unmerge_stranded_gene_tracks_mismatch_raises_error(
+      self,
+      scores: anndata.AnnData,
+      track_metadata: pd.DataFrame,
+      expected_error: str,
+  ):
+    with self.assertRaisesRegex(ValueError, expected_error):
+      variant_scoring_utils.unmerge_stranded_gene_tracks(
+          scores, track_metadata=track_metadata
+      )
 
 
 if __name__ == '__main__':
