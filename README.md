@@ -189,6 +189,7 @@ and packages:
 
 *   [Abseil](https://github.com/abseil/abseil-py)
 *   [anndata](https://github.com/scverse/anndata)
+*   [fsspec](https://github.com/fsspec/filesystem_spec)
 *   [gRPC](https://github.com/grpc/grpc)
 *   [immutabledict](https://github.com/corenting/immutabledict)
 *   [intervaltree](https://github.com/chaimleib/intervaltree)
@@ -199,6 +200,7 @@ and packages:
 *   [pandas](https://pandas.pydata.org/)
 *   [protobuf](https://developers.google.com/protocol-buffers/)
 *   [pyarrow](https://arrow.apache.org/)
+*   [pyfaidx](https://github.com/mdshw5/pyfaidx/)
 *   [SciPy](https://scipy.org/)
 *   [seaborn](https://seaborn.pydata.org/)
 *   [tqdm](https://github.com/tqdm/tqdm)

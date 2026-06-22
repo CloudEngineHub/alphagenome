@@ -35,6 +35,7 @@ dependencies=[
     # keep-sorted start
     'absl-py',
     'anndata',
+    'fsspec',
     'grpcio>=1.67.1',
     'immutabledict',
     'intervaltree',
@@ -45,6 +46,7 @@ dependencies=[
     'pandas',
     'protobuf>=5.28.3',
     'pyarrow',
+    'pyfaidx',
     'scipy',
     'seaborn',
     'tqdm',
