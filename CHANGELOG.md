@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0]
+
+### Added
+
+-   Fasta extractor for reading DNA sequences.
+-   Colab to demonstrate how to score splicing variants.
+
+### Changed
+
+-   Merge stranded tracks for gene-centric scoring.
+-   Better transcript arrow plotting.
+
 ## [0.6.1]
 
 ### Changed
