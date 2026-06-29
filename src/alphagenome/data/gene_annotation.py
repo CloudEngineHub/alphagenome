@@ -358,8 +358,6 @@ def get_gene_intervals(
       interval or multiple intervals are found for any of the given gene
       identifiers.
   """
-  if (gene_symbols is None) == (gene_ids is None):
-    raise ValueError('Exactly one of gene_symbols or gene_ids must be set.')
 
   gtf_genes = gtf[gtf['Feature'] == 'gene'].copy()
 
@@ -367,10 +365,12 @@ def get_gene_intervals(
     id_col = 'gene_name'
     input_ids = gene_symbols
     process_fn = lambda s: s.str.upper()
-  else:
+  elif gene_ids is not None:
     id_col = 'gene_id'
     input_ids = gene_ids
     process_fn = lambda s: s.str.split('.', n=1).str[0]
+  else:
+    raise ValueError('Exactly one of gene_symbols or gene_ids must be set.')
 
   processed_input_ids = process_fn(pd.Series(input_ids, dtype=str))
   gtf_genes['processed_id'] = process_fn(gtf_genes[id_col])

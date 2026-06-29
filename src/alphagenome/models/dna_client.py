@@ -14,12 +14,12 @@
 
 """Client implementation for interacting with a DNA model server."""
 
-from collections.abc import Container, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Container, Iterable, Iterator, Mapping, Sequence
 import concurrent.futures
 import functools
 import random
 import time
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from alphagenome import tensor_utils
 from alphagenome.data import genome
@@ -67,11 +67,9 @@ MAX_VARIANT_SCORERS_PER_REQUEST = 20
 
 _VALID_SEQUENCE_CHARACTERS = frozenset('ACGTN')
 
-RetryableFunction = TypeVar('RetryableFunction')
-
 
 def retry_rpc(
-    function: RetryableFunction,
+    function: Callable[..., Any],
     *,
     max_attempts: int = 5,
     initial_backoff: float = 1.25,
@@ -80,7 +78,7 @@ def retry_rpc(
         [grpc.StatusCode.RESOURCE_EXHAUSTED, grpc.StatusCode.UNAVAILABLE]
     ),
     jitter: float = 0.2,
-) -> RetryableFunction:
+) -> Callable[..., Any]:
   """Decorator that retries when an RPC fails.
 
   gRPC currently doesn't support retries for streaming RPCs. This decorator is
@@ -142,6 +140,7 @@ def _read_tensor_chunks(
         | dna_model_service_pb2.PredictVariantResponse
         | dna_model_service_pb2.ScoreVariantResponse
         | dna_model_service_pb2.ScoreIntervalResponse
+        | dna_model_service_pb2.ScoreIsmVariantResponse
     ],
     chunk_count: int,
 ) -> Iterable[tensor_pb2.TensorChunk]:
@@ -238,6 +237,7 @@ def _construct_output(
     ],
 ):
   """Helper to construct an Output dataclass from a mapping of output types."""
+  # pytype: disable=bad-argument-type
   output = Output(
       atac=output_dict.get(dna_model_pb2.OUTPUT_TYPE_ATAC),
       cage=output_dict.get(dna_model_pb2.OUTPUT_TYPE_CAGE),
@@ -255,6 +255,7 @@ def _construct_output(
       contact_maps=output_dict.get(dna_model_pb2.OUTPUT_TYPE_CONTACT_MAPS),
       procap=output_dict.get(dna_model_pb2.OUTPUT_TYPE_PROCAP),
   )
+  # pytype: enable=bad-argument-type
   return output
 
 
@@ -324,7 +325,7 @@ def _construct_anndata_from_proto(
   if scorer_metadata:
     metadata = []
     for gene_proto in scorer_metadata:
-      scorer_metadata = {
+      scorer_metadata: dict[str, str | int] = {
           'gene_id': gene_proto.gene_id,
       }
       if gene_proto.HasField('strand'):
@@ -351,7 +352,7 @@ def _construct_anndata_from_proto(
   )
   var.index = var.index.map(str)
 
-  uns = {'interval': interval}
+  uns: dict[str, genome.Interval | genome.Variant] = {'interval': interval}
   if variant is not None:
     uns['variant'] = genome.Variant.from_proto(variant)
   layers = None
@@ -548,12 +549,13 @@ class DnaClient(dna_model.DnaModel):
           f' invalid characters: "{invalid_characters}"'
       )
     validate_sequence_length(len(sequence))
-    requested_outputs = [o.to_proto() for o in dict.fromkeys(requested_outputs)]
     request = dna_model_service_pb2.PredictSequenceRequest(
         sequence=sequence,
         organism=organism.to_proto(),
         ontology_terms=_convert_ontologies_to_protos(ontology_terms),
-        requested_outputs=requested_outputs,
+        requested_outputs=[
+            o.to_proto() for o in dict.fromkeys(requested_outputs)
+        ],
         model_version=self._model_version,
     )
     responses = dna_model_service_pb2_grpc.DnaModelServiceStub(
@@ -584,12 +586,13 @@ class DnaClient(dna_model.DnaModel):
       Output for the provided DNA interval.
     """
     validate_sequence_length(interval.width)
-    requested_outputs = [o.to_proto() for o in dict.fromkeys(requested_outputs)]
     request = dna_model_service_pb2.PredictIntervalRequest(
         interval=interval.to_proto(),
         organism=organism.to_proto(),
         ontology_terms=_convert_ontologies_to_protos(ontology_terms),
-        requested_outputs=requested_outputs,
+        requested_outputs=[
+            o.to_proto() for o in dict.fromkeys(requested_outputs)
+        ],
         model_version=self._model_version,
     )
     responses = dna_model_service_pb2_grpc.DnaModelServiceStub(
@@ -622,13 +625,14 @@ class DnaClient(dna_model.DnaModel):
       Variant output for the provided DNA interval and variant.
     """
     validate_sequence_length(interval.width)
-    requested_outputs = [o.to_proto() for o in dict.fromkeys(requested_outputs)]
     request = dna_model_service_pb2.PredictVariantRequest(
         interval=interval.to_proto(),
         variant=variant.to_proto(),
         organism=organism.to_proto(),
         ontology_terms=_convert_ontologies_to_protos(ontology_terms),
-        requested_outputs=requested_outputs,
+        requested_outputs=[
+            o.to_proto() for o in dict.fromkeys(requested_outputs)
+        ],
         model_version=self._model_version,
     )
     responses = dna_model_service_pb2_grpc.DnaModelServiceStub(

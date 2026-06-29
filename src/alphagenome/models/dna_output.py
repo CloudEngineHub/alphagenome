@@ -217,9 +217,9 @@ class Output:
         tdata: track_data.TrackData, output_type: OutputType
     ) -> track_data.TrackData | None:
       del output_type  # Unused.
-      if track_ontologies := tdata.ontology_terms:
+      if (track_ontologies := tdata.ontology_terms) is not None:
         return tdata.filter_tracks(
-            [o in ontology_terms for o in track_ontologies]
+            [o in ontology_terms for o in filter(None, track_ontologies)]
         )
       else:
         return tdata
@@ -416,9 +416,10 @@ class OutputMetadata:
     df_list = []
     for output_type in OutputType:
       if (df := self.get(output_type)) is not None:
-        assert isinstance(df, pd.DataFrame)
         df_list.append(df.assign(output_type=output_type))
-    return pd.concat(df_list)
+    df = pd.concat(df_list)
+    assert isinstance(df, pd.DataFrame)
+    return df
 
 
 @typing.jaxtyped

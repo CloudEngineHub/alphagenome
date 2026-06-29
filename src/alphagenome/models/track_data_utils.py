@@ -203,7 +203,7 @@ def metadata_from_proto(
   """
   metadata = []
   for track_proto in proto.metadata:
-    track_metadata = {
+    track_metadata: dict[str, str | int | float] = {
         'name': track_proto.name,
         'strand': str(genome.Strand.from_proto(track_proto.strand)),
     }

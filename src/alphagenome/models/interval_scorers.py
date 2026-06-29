@@ -16,7 +16,7 @@
 
 import dataclasses
 import enum
-from typing import TypeVar
+from typing import TypeAlias
 
 from alphagenome.models import dna_output
 from alphagenome.protos import dna_model_pb2
@@ -128,11 +128,8 @@ class GeneMaskScorer:
     )
 
 
-# TypeVar for all interval scorer types.
-IntervalScorerTypes = TypeVar(
-    'IntervalScorerTypes',
-    bound=GeneMaskScorer,
-)
+# Type alias for all interval scorer types.
+IntervalScorerTypes: TypeAlias = GeneMaskScorer
 
 # A dict of interval scorers, with our recommended settings for a wide range
 # of different use cases and settings.

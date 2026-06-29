@@ -47,6 +47,7 @@ class TrackDataInitTest(parameterized.TestCase):
     self.assertListEqual(list(tdata.names), ['first', 'first', 'second'])
     self.assertListEqual(list(tdata.strands), ['+', '-', '.'])
     if include_ontologies:
+      self.assertIsNotNone(tdata.ontology_terms)
       self.assertEqual(
           [
               o.ontology_curie if o is not None else None
@@ -150,6 +151,7 @@ class TrackDataSlicingTest(parameterized.TestCase):
       # Slicing to half the width.
       tdata2 = tdata.slice_by_positions(0, 2)
       self.assertEqual(tdata2.values.shape, tuple([1] * num_positional + [3]))
+      self.assertIsNotNone(tdata2.interval)
       self.assertEqual(tdata2.interval.start, 0)
       self.assertEqual(tdata2.interval.end, 2)
       self.assertEqual(tdata2.width, tdata2.interval.width)
@@ -197,6 +199,7 @@ class TrackDataSlicingTest(parameterized.TestCase):
       # Slicing to half the width.
       tdata2 = tdata.slice_by_interval(genome.Interval('chr1', 1, 3))
       self.assertEqual(tdata2.values.shape, tuple([1] * num_positional + [3]))
+      self.assertIsNotNone(tdata2.interval)
       self.assertEqual(tdata2.interval.start, 1)
       self.assertEqual(tdata2.interval.end, 3)
       self.assertEqual(tdata2.width, tdata2.interval.width)
@@ -211,16 +214,19 @@ class TrackDataSlicingTest(parameterized.TestCase):
       tdata2 = tdata.slice_by_interval(
           genome.Interval('chr1', 1, 4), match_resolution=True
       )
+      self.assertIsNotNone(tdata2.interval)
       self.assertEqual(tdata2.interval.start, 1)
       self.assertEqual(tdata2.interval.end, 5)
       tdata2 = tdata.slice_by_interval(
           genome.Interval('chr1', 2, 5), match_resolution=True
       )
+      self.assertIsNotNone(tdata2.interval)
       self.assertEqual(tdata2.interval.start, 1)
       self.assertEqual(tdata2.interval.end, 5)
       tdata2 = tdata.slice_by_interval(
           genome.Interval('chr1', 3, 5), match_resolution=True
       )
+      self.assertIsNotNone(tdata2.interval)
       self.assertEqual(tdata2.interval.start, 3)
       self.assertEqual(tdata2.interval.end, 5)
     else:

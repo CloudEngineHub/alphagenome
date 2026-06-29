@@ -679,7 +679,7 @@ class TrackData:
       interval = None
 
     idx = self._reverse_complement_idx()
-    slices = [slice(None)] * self.values.ndim
+    slices: list[slice | np.ndarray] = [slice(None)] * self.values.ndim
     slices[-1] = idx
     for axis in self.positional_axes:
       slices[axis] = slice(None, None, -1)
@@ -893,20 +893,20 @@ def interleave(
     metadatas.append(metadata)
 
   # Assign a new index idx that, when sorted, will produce an interleave.
-  interleaved_metadata = (
-      pd.concat([
-          metadata.assign(
-              idx=np.arange(
-                  stop=(len(metadata) * len(track_datas)),
-                  step=len(track_datas),
-              )
-              + i
+  df = pd.concat([
+      metadata.assign(
+          idx=np.arange(
+              0,
+              stop=(len(metadata) * len(track_datas)),
+              step=len(track_datas),
           )
-          for i, metadata in enumerate(metadatas)
-      ])
-      .sort_values('idx')
-      .drop('idx', axis=1)
-      .reset_index(drop=True)
+          + i
+      )
+      for i, metadata in enumerate(metadatas)
+  ])
+  assert isinstance(df, pd.DataFrame)
+  interleaved_metadata = (
+      df.sort_values('idx').drop('idx', axis=1).reset_index(drop=True)
   )
 
   return TrackData(
