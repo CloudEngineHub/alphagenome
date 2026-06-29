@@ -1064,6 +1064,7 @@ class Sashimi(AbstractComponent):
       normalize_values: bool = True,
       interval_contained: bool = True,
       rng: np.random.Generator | None = None,
+      color: str | None = None,
   ):
     """Initializes the `Sashimi` component.
 
@@ -1081,6 +1082,7 @@ class Sashimi(AbstractComponent):
         interval.
       rng: Optional random number generator to use for jittering junction paths.
         If unset will use NumPy's default random number generator.
+      color: Color of the Sashimi arcs.
     """
     if normalize_values:
       self._junction_track = junction_track.normalize_values()
@@ -1093,6 +1095,7 @@ class Sashimi(AbstractComponent):
     self._annotate_counts = annotate_counts
     self._interval_contained = interval_contained
     self._rng = rng or np.random.default_rng()
+    self._color = color
 
   def get_ax_height(self, axis_index: int) -> float:
     """Returns the height of the axis."""
@@ -1148,6 +1151,7 @@ class Sashimi(AbstractComponent):
         filter_threshold=0,
         annotate_counts=self._annotate_counts,
         rng=self._rng,
+        color=self._color,
     )
     ax.set_yticklabels([])
     ax.set_yticks([])

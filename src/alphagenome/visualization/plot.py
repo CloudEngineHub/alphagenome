@@ -484,6 +484,7 @@ def sashimi_plot(
     filter_threshold: float = 0.01,
     annotate_counts: bool = True,
     rng: np.random.Generator | None = None,
+    color: str | None = None,
 ):
   """Plot splice junctions as a Sashimi plot.
 
@@ -504,6 +505,7 @@ def sashimi_plot(
     annotate_counts: Whether to annotate the junctions with read counts.
     rng: Optional random number generator to use for jittering junction paths.
       If unset will use NumPy's default random number generator.
+    color: Color of the Sashimi arcs.
   """
   rng = rng or np.random.default_rng()
   total = np.sum([junction.k for junction in junctions])
@@ -529,7 +531,9 @@ def sashimi_plot(
             mpl.path.Path.CURVE4,
         ],
     )
-    patch = mpl.patches.PathPatch(path, facecolor='none', lw=min(k * 30, 5))
+    patch = mpl.patches.PathPatch(
+        path, facecolor='none', lw=min(k * 30, 5), edgecolor=color
+    )
     ax.add_patch(patch)
     if annotate_counts:
       text_pos = junction.center()
