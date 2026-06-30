@@ -306,8 +306,8 @@ class Tracks(AbstractComponent):
       raise ValueError('.interval needs to be set in track_data.')
 
     # Set up color per set of interleaved tracks.
-    if getattr(self._tdata, 'uns') is not None:
-      self._num_tdata = self._tdata.uns['num_interleaved_trackdatas']
+    if (uns := getattr(self._tdata, 'uns')) is not None:
+      self._num_tdata = uns['num_interleaved_trackdatas']
     else:
       self._num_tdata = 1
 
@@ -368,12 +368,13 @@ class Tracks(AbstractComponent):
       interval: The genomic interval to plot.
     """
     tdata = self._tdata
-    assert tdata.interval is not None
 
     # If an interval is passed, zoom in on that specific sub-interval.
     if interval is not None:
       tdata = tdata.slice_by_interval(interval, match_resolution=True)
       del interval
+
+    assert tdata.interval is not None
     x = (
         np.arange(tdata.values.shape[0]) * tdata.resolution
         + tdata.interval.start
@@ -464,7 +465,6 @@ class OverlaidTracks(AbstractComponent):
                   the track data names.
     """
     self._tdata = tdata
-    self._colors = colors
     self._cmap = cmap
     self._track_height = track_height
     self._ylabel_template = ylabel_template
@@ -506,8 +506,8 @@ class OverlaidTracks(AbstractComponent):
 
     # If a colors dict is passed, then there should be a matching color for each
     # track data name.
-    if self._colors is not None:
-      if self._tdata.keys() != self._colors.keys():
+    if colors is not None:
+      if self._tdata.keys() != colors.keys():
         raise ValueError(
             f'If passing colors, each tdata name {list(self._tdata.keys())} '
             'must have an associated color.'
@@ -516,7 +516,9 @@ class OverlaidTracks(AbstractComponent):
     else:
       cmap = plt.get_cmap(self._cmap)
       colors = cmap(np.linspace(0, 1, len(tdata)))
-      self._colors = dict(zip(self._tdata.keys(), colors))
+      colors = dict(zip(self._tdata.keys(), colors))
+
+    self._colors = colors
 
     if len(self._first_tdata.positional_axes) != 1:
       raise ValueError(
@@ -615,9 +617,9 @@ class OverlaidTracks(AbstractComponent):
         ax.legend(self._tdata_ordered.keys(), loc=self._legend_loc)
 
       if self._yticks is not None:
-        ax.set_yticks(self._yticks)
+        ax.set_yticks(self._yticks)  # pytype: disable=not-callable
       if self._yticklabels is not None:
-        ax.set_yticklabels(self._yticklabels)
+        ax.set_yticklabels(self._yticklabels)  # pytype: disable=not-callable
 
     if self._ylabel_template:
       _set_ylabel(ax, self._get_ylabel(axis_index), self._ylabel_horizontal)
@@ -785,6 +787,7 @@ class ContactMaps(AbstractComponent):
       del interval
 
     arr = tdata.values[:, :, axis_index]
+    assert isinstance(tdata.interval, genome.Interval)
     x = self._get_bin_positions(tdata.interval, self._resolution)
 
     # We shift the bin edges by half a step since pcolormesh will misalign
@@ -861,6 +864,8 @@ class ContactMapsDiff(ContactMaps):
       **kwargs: Additional keyword arguments to pass to the plotting function.
     """
     self._norm = plt_colors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
+    if isinstance(cmap, str):
+      cmap = matplotlib.pyplot.get_cmap(cmap)
 
     super().__init__(
         tdata=tdata,
@@ -964,8 +969,8 @@ class TranscriptAnnotation(AbstractComponent):
     transcripts = [
         t for t in self._transcripts if t.transcript_interval.overlaps(interval)
     ]
-    ax.set_yticklabels([])
-    ax.set_yticks([])
+    ax.set_yticklabels([])  # pytype: disable=not-callable
+    ax.set_yticks([])  # pytype: disable=not-callable
     ax.spines['left'].set_visible(False)
     plot_transcripts.plot_transcripts(ax, transcripts, interval, **self._kwargs)
 
@@ -1142,7 +1147,11 @@ class Sashimi(AbstractComponent):
     if self._interval_contained:
       junctions = [j for j in junctions if interval.contains(j)]
     else:
-      junctions = [j for j in junctions if j.overlaps(interval)]
+      junctions = [
+          j
+          for j in junctions
+          if j.overlaps(interval)  # pytype: disable=bad-argument-error
+      ]
 
     plot_lib.sashimi_plot(
         junctions,
@@ -1153,8 +1162,8 @@ class Sashimi(AbstractComponent):
         rng=self._rng,
         color=self._color,
     )
-    ax.set_yticklabels([])
-    ax.set_yticks([])
+    ax.set_yticklabels([])  # pytype: disable=not-callable
+    ax.set_yticks([])  # pytype: disable=not-callable
     ax.spines['left'].set_visible(False)
     if self._ylabel_template:
       _set_ylabel(ax, self._get_ylabel(axis_index), self._ylabel_horizontal)
@@ -1198,8 +1207,8 @@ class EmptyComponent(AbstractComponent):
       axis_index: The index of the axis.
       interval: The genomic interval to plot.
     """
-    ax.set_yticklabels([])
-    ax.set_yticks([])
+    ax.set_yticklabels([])  # pytype: disable=not-callable
+    ax.set_yticks([])  # pytype: disable=not-callable
     ax.spines['left'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
@@ -1391,6 +1400,7 @@ class IntervalAnnotation(AbstractAnnotation):
       if isinstance(self._colors, str):
         color = self._colors
       else:
+        assert isinstance(self._colors, Sequence)
         color = self._colors[i]
       # Only plot the piece of the annotation that intersects with the plotting
       # interval.
@@ -1428,6 +1438,7 @@ class IntervalAnnotation(AbstractAnnotation):
     # Only add labels if they are provided.
     if self.has_labels:
       for i, interval_i in enumerate(self._intervals):
+        assert self._labels is not None
         label = self._labels[i]
         # Place label in the middle of the rectangle.
         # Only plot the piece of the annotation that intersects with the
@@ -1438,7 +1449,7 @@ class IntervalAnnotation(AbstractAnnotation):
 
         self.add_label(
             ax,
-            label_x_position=np.mean((interval_i.start, interval_i.end)),
+            label_x_position=np.mean((interval_i.start, interval_i.end)).item(),
             label=label,
             angle=self._label_angle,
             label_height_factor=label_height_factor,
@@ -1496,6 +1507,7 @@ class VariantAnnotation(AbstractAnnotation):
       if isinstance(self._colors, str):
         color = self._colors
       else:
+        assert self._colors is not None
         color = self._colors[i]
       interval_i = variant.reference_interval
       # Only plot the piece of the annotation that intersects with the plotting
@@ -1537,11 +1549,11 @@ class VariantAnnotation(AbstractAnnotation):
         interval_i = variant.reference_interval
         # Using truncated string method for genome.Variant class to get default
         # labels for variants.
-        label = (
-            variant.as_truncated_str(max_length=20)
-            if self._use_default_labels
-            else self._labels[i]
-        )
+        if self._use_default_labels:
+          label = variant.as_truncated_str(max_length=20)
+        else:
+          assert self._labels is not None
+          label = self._labels[i]
         # Place label in the middle of the rectangle.
         # Only plot the piece of the annotation that intersects with the
         # plotting interval.
@@ -1551,7 +1563,7 @@ class VariantAnnotation(AbstractAnnotation):
 
         self.add_label(
             ax,
-            label_x_position=np.mean((interval_i.start, interval_i.end)),
+            label_x_position=np.mean((interval_i.start, interval_i.end)).item(),
             label=label,
             angle=self._label_angle,
             label_height_factor=label_height_factor,

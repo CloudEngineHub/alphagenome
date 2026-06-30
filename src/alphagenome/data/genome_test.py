@@ -833,7 +833,7 @@ class VariantTest(parameterized.TestCase):
       self, variant: str, reference_sequence: str, expected: str
   ):
     mock_extractor = mock.create_autospec(genome._FastaExtractorType)  # pylint: disable=protected-access
-    variant = genome.Variant.from_str(variant)
+    variant: genome.Variant = genome.Variant.from_str(variant)
 
     def _extract(interval):
       return reference_sequence[interval.start : interval.end]

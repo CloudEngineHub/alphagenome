@@ -14,7 +14,6 @@
 
 """Utilities for working with genome-related objects such as intervals."""
 
-import collections
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 import copy
 import dataclasses
@@ -1020,12 +1019,12 @@ def _split_intervals(
 
 def _group_by_chromosome(
     intervals: Iterable[Interval],
-) -> dict[str, list[Interval]]:
+) -> Mapping[str, Sequence[Interval]]:
   """Groups intervals by chromosome."""
-  interval_map = collections.defaultdict(list)
+  interval_map: dict[str, list[Interval]] = {}
   for i in intervals:
-    interval_map[i.chromosome].append(i)
-  return dict(interval_map)
+    interval_map.setdefault(i.chromosome, []).append(i)
+  return interval_map
 
 
 def intersect_intervals(
@@ -1074,7 +1073,9 @@ def intersect_intervals(
       or `rhs` are implicitly unioned.
   """
 
-  def _intersect(lhs, rhs, chrom):
+  def _intersect(
+      lhs: Iterable[Interval], rhs: Iterable[Interval], chrom: str
+  ) -> Iterator[Interval]:
     """Calculates the intersection for a specific chromosome.
 
     Deconstructs two sets of intervals into (start, +k) and (end, -k) positions,
@@ -1106,11 +1107,12 @@ def intersect_intervals(
         if start is None:
           start = pos
       elif old_accum & 0xFFFF and old_accum & 0xFFFF0000:
+        assert start is not None
         yield Interval(chrom, start, pos, result_strand)
         start = None
 
-  lhs = _group_by_chromosome(lhs)
-  rhs = _group_by_chromosome(rhs)
+  lhs: Mapping[str, Sequence[Interval]] = _group_by_chromosome(lhs)
+  rhs: Mapping[str, Sequence[Interval]] = _group_by_chromosome(rhs)
   for chromosome in set(lhs) & set(rhs):
     yield from _intersect(lhs[chromosome], rhs[chromosome], chromosome)
 
@@ -1144,6 +1146,7 @@ def union_intervals(
       if accum == 0 and end is not None and end < pos:
         # Delay generating an interval until after the observed end point.
         # This merges abutting ranges.
+        assert start is not None
         yield Interval(chrom, start, end, result_strand)
         start = end = None
       accum += delta
@@ -1154,10 +1157,11 @@ def union_intervals(
         assert start is not None
         end = pos
     if end is not None:
+      assert start is not None
       yield Interval(chrom, start, end, result_strand)
 
-  lhs = _group_by_chromosome(lhs)
-  rhs = _group_by_chromosome(rhs)
+  lhs: Mapping[str, Sequence[Interval]] = _group_by_chromosome(lhs)
+  rhs: Mapping[str, Sequence[Interval]] = _group_by_chromosome(rhs)
   for chromosome in set(lhs) | set(rhs):
     yield from _union(
         lhs.get(chromosome, []), rhs.get(chromosome, []), chromosome

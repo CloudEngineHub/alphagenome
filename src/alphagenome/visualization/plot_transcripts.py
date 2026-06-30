@@ -98,7 +98,7 @@ def plot_transcripts(
     transcript_style: TranscriptStyle = TranscriptStylePreset.STANDARD.value,
     plot_labels_once: bool = False,
     **kwargs,
-) -> mpl.figure.Figure:
+):
   """Plot transcripts.
 
   Loops over each transcript in `transcripts` and calls `draw_transcript`.
@@ -113,9 +113,6 @@ def plot_transcripts(
     transcript_style: specification of transcript styling details.
     plot_labels_once: If True, labels will only be plotted once.
     **kwargs: kwargs passed to draw_transcript.
-
-  Returns:
-    Matplotlib figure object.
   """
   if not transcripts:
     return
@@ -128,7 +125,11 @@ def plot_transcripts(
   )
 
   # Get typical label width and transcript heights.
-  text_width = _get_text_width(transcripts[0].info[label_name], ax=ax)
+  text_width = (
+      _get_text_width(transcripts[0].info[label_name], ax=ax)
+      if label_name is not None
+      else 0
+  )
   heights = _get_placement_heights(
       transcripts, extend_fraction=1.0, front_padding=text_width
   )

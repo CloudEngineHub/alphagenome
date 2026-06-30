@@ -19,7 +19,7 @@ import dataclasses
 import enum
 import itertools
 import math
-from typing import TypeVar
+from typing import TypeAlias
 
 from alphagenome.models import dna_output
 from alphagenome.protos import dna_model_pb2
@@ -544,15 +544,14 @@ class SpliceJunctionScorer:
 
 
 # TypeVar for all variant scorer types.
-VariantScorerTypes = TypeVar(
-    'VariantScorerTypes',
-    CenterMaskScorer,
-    ContactMapScorer,
-    GeneMaskLFCScorer,
-    GeneMaskActiveScorer,
-    GeneMaskSplicingScorer,
-    PolyadenylationScorer,
-    SpliceJunctionScorer,
+VariantScorerTypes: TypeAlias = (
+    CenterMaskScorer
+    | ContactMapScorer
+    | GeneMaskLFCScorer
+    | GeneMaskActiveScorer
+    | GeneMaskSplicingScorer
+    | PolyadenylationScorer
+    | SpliceJunctionScorer
 )
 
 # A dict of variant scorers, with our recommended settings for a wide range

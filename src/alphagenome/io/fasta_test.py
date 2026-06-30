@@ -37,7 +37,7 @@ class FastaExtractorTest(parameterized.TestCase):
   ])
   def test_extract(self, interval: str, expected: str):
     extractor = fasta.FastaExtractor(_get_test_fasta_path())
-    interval = genome.Interval.from_str(interval)
+    interval: genome.Interval = genome.Interval.from_str(interval)
     self.assertEqual(extractor.extract(interval), expected)
 
   def test_extract_fully_out_of_bounds_raises(self):

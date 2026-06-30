@@ -240,7 +240,7 @@ class Transcript:
     if not self.is_coding:
       return []
     return genome.merge_overlapping_intervals(
-        self.cds + (self.stop_codon or [])
+        (self.cds or []) + (self.stop_codon or [])
     )
 
   @functools.cached_property
@@ -482,7 +482,7 @@ class Transcript:
     exon_row = None
     for _, row in transcript_df.iterrows():
       interval = genome.Interval.from_pyranges_dict(
-          row, ignore_info=True
+          dict(row), ignore_info=True
       )  # pytype: disable=wrong-arg-types  # pandas-drop-duplicates-overloads
       if row.Feature in ['CDS', 'stop_codon']:
         interval.info['frame'] = int(row.Frame)
@@ -503,7 +503,7 @@ class Transcript:
           'Selenocysteines',
           'gene_type',
       ]
-      info = {k: v for k, v in exon_row.items() if k not in skip}
+      info = {str(k): v for k, v in exon_row.items() if k not in skip}
 
     if 'transcript_type' in exon_row:
       info['transcript_type'] = exon_row['transcript_type']

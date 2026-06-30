@@ -328,8 +328,8 @@ class ClientTest(parameterized.TestCase):
 
   def _assert_track_metadata_equal(
       self,
-      actual: track_data.TrackMetadata,
-      expected: track_data.TrackMetadata,
+      actual: track_data.TrackMetadata | None,
+      expected: track_data.TrackMetadata | None,
       msg,
   ) -> None:
     if actual is not None and expected is not None:
@@ -475,7 +475,7 @@ class ClientTest(parameterized.TestCase):
   )
   def test_predict_sequence(
       self,
-      requested_output_types: set[dna_client.OutputType] | None,
+      requested_output_types: set[dna_client.OutputType],
       sequence_length: int,
       expected: dna_client.Output,
       bytes_per_chunk: int,
@@ -572,6 +572,7 @@ class ClientTest(parameterized.TestCase):
 
     mock_channel, mock_stream = _create_mock_channel_and_stream(_mock_generate)
     model = dna_client.DnaClient(channel=mock_channel)
+    intervals = [interval] * num_predictions if interval is not None else None
 
     outputs = model.predict_sequences(
         ['A' * sequence_length] * num_predictions,
@@ -580,7 +581,7 @@ class ClientTest(parameterized.TestCase):
         requested_outputs=[*dna_client.OutputType],
         progress_bar=False,
         max_workers=num_workers,
-        intervals=[interval] * num_predictions if with_interval else None,
+        intervals=intervals,
     )
     for output in outputs:
       self.assertEqual(output, mock_predictions)
@@ -1632,7 +1633,7 @@ class ClientTest(parameterized.TestCase):
       self,
       interval: genome.Interval,
       variants: list[genome.Variant],
-      scorers: list[dna_client.VariantScorerTypes],
+      scorers: list[variant_scorers.VariantScorerTypes],
       expected: list[anndata.AnnData],
       organism: dna_client.Organism,
       bytes_per_chunk: int,

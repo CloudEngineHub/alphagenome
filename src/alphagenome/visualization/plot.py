@@ -150,7 +150,7 @@ def seqlogo(
 
 
 def plot_contact_map(
-    contact_map: pd.DataFrame,
+    contact_map: pd.DataFrame | np.ndarray,
     vmin: float | None = None,
     vmax: float | None = None,
     square: bool = True,
@@ -187,7 +187,7 @@ def plot_contact_map(
         + ' - '
         + tuple2string(contact_map.index[-1])
     )
-    contact_map = contact_map.values
+    contact_map: np.ndarray = contact_map.values
   else:
     interval_string = ''
 
@@ -455,6 +455,7 @@ def plot_tracks(
       if track_ylim is None:
         track_ylim = ax.get_yticks()[[0, -1]]
       # TODO: b/377226499 - Preventing negative values might be sub-optimal.
+      assert isinstance(track_ylim, tuple[int, int])
       minimum = max(track_ylim[0], 0)
       maximum = track_ylim[1]
       ax.spines['left'].set_bounds(minimum, maximum)
@@ -508,11 +509,11 @@ def sashimi_plot(
     color: Color of the Sashimi arcs.
   """
   rng = rng or np.random.default_rng()
-  total = np.sum([junction.k for junction in junctions])
+  total = np.sum([junction.k for junction in junctions if junction.k])
   # Random jitter position to avoid overlap.
   jitters = rng.uniform(low=0.05, high=0.15, size=len(junctions))
   for junction, jt in zip(junctions, jitters):
-    if junction.k < filter_threshold:
+    if junction.k is None or junction.k < filter_threshold:
       continue
     k = junction.k / total
     verts = [
