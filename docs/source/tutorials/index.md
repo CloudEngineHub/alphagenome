@@ -1,6 +1,6 @@
 # Tutorials
 
-``` {toctree}
+```{toctree}
 :maxdepth: 1
 :hidden:
 
@@ -10,6 +10,7 @@
 ../colabs/batch_variant_scoring
 ../colabs/example_analysis_workflow
 ../colabs/splicing_variant_scoring
+../colabs/deriving_PSI_values
 ```
 
 <!-- mdformat off(Turn off mdformat to retain grid card syntax.) -->
@@ -58,6 +59,13 @@ Example analysis of TAL1 locus.
 :link-type: doc
 
 Scoring variants on their splicing effect.
+:::
+
+:::{grid-item-card} Deriving PSI values
+:link: ../colabs/deriving_PSI_values
+:link-type: doc
+
+Deriving PSI3/5 values from splicing scores.
 :::
 
 <!-- mdformat on -->

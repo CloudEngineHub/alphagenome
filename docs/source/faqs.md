@@ -366,6 +366,14 @@ zero) to 0, and the 100th percentile (most positive raw scores) to +1.
 Note that quantile scores are only available for the suite of recommended
 scorers.
 
+### How do I convert splicing variant scores to Percent Spliced In (PSI) values?
+
+AlphaGenome's splicing variant scorers predict splice site usage and splice
+junction counts, but they do not directly output Percent Spliced In (PSI)
+values. However, you can derive PSI3/5 values from predicted splicing scores.
+See the [Deriving PSI values Colab](colabs/deriving_PSI_values) for a tutorial
+and details on how to compute PSI values from AlphaGenome outputs.
+
 ## Other
 
 ### What terms of use apply to AlphaGenome outputs?
