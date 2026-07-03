@@ -11,6 +11,7 @@
 ../colabs/example_analysis_workflow
 ../colabs/splicing_variant_scoring
 ../colabs/deriving_PSI_values
+../colabs/haplotype_workaround
 ```
 
 <!-- mdformat off(Turn off mdformat to retain grid card syntax.) -->
@@ -68,4 +69,10 @@ Scoring variants on their splicing effect.
 Deriving PSI3/5 values from splicing scores.
 :::
 
+:::{grid-item-card} Haplotype analysis
+:link: ../colabs/haplotype_workaround
+:link-type: doc
+
+How to analyze the combined effect of multiple variants in a haplotype.
+:::
 <!-- mdformat on -->

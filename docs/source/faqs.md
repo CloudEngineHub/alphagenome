@@ -374,6 +374,15 @@ values. However, you can derive PSI3/5 values from predicted splicing scores.
 See the [Deriving PSI values Colab](colabs/deriving_PSI_values) for a tutorial
 and details on how to compute PSI values from AlphaGenome outputs.
 
+### Can I predict the combined effect of multiple variants in a haplotype?
+
+Yes. Although the standard API takes a single variant at a time, you can analyze
+the combined effect of multiple variants on the same haplotype by constructing
+alternative sequences containing all variants of interest and comparing the
+predictions to those of the individual variants. See the
+[Haplotype analysis Colab](colabs/haplotype_workaround) for an example workflow
+demonstrating this approach.
+
 ## Other
 
 ### What terms of use apply to AlphaGenome outputs?
