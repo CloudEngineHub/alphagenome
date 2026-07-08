@@ -152,7 +152,7 @@ class TrackDataUtilsTest(parameterized.TestCase):
           False,
           True,
           False,
-          None,
+          np.nan,
       ]
     if include_nonzero_mean:
       df['nonzero_mean'] = [1.1, None, 1.1, 1.1, 1.1, 0.6, None]

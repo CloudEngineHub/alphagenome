@@ -172,7 +172,7 @@ class TrackData:
     """Returns a list of ontology terms (if available)."""
     if 'ontology_curie' in self.metadata.columns:
       return [
-          ontology.from_curie(curie) if curie is not None else None
+          ontology.from_curie(curie) if pd.notna(curie) else None
           for curie in self.metadata['ontology_curie'].values
       ]
     else:

@@ -143,17 +143,19 @@ def metadata_to_proto(
       endedness,
       nonzero_mean,
   ) in columns:
-    if biosample_type:
+    if pd.notna(biosample_type):
       biosample = dna_model_pb2.Biosample(
           name=biosample_name,
           type=dna_model_pb2.BiosampleType.Value(
               f'BIOSAMPLE_TYPE_{biosample_type.upper()}'
           ),
-          stage=biosample_life_stage,
+          stage=biosample_life_stage
+          if pd.notna(biosample_life_stage)
+          else None,
       )
     else:
       biosample = None
-    if endedness is not None:
+    if pd.notna(endedness):
       match endedness:
         case 'paired':
           endedness = dna_model_pb2.Endedness.ENDEDNESS_PAIRED
@@ -166,24 +168,24 @@ def metadata_to_proto(
         dna_model_pb2.TrackMetadata(
             name=name,
             strand=genome.Strand.from_str(strand).to_proto()
-            if strand
+            if pd.notna(strand)
             else None,
             ontology_term=ontology.from_curie(ontology_curie).to_proto()
-            if ontology_curie
+            if pd.notna(ontology_curie)
             else None,
             biosample=biosample,
             transcription_factor_code=transcription_factor
-            if isinstance(transcription_factor, str)
+            if pd.notna(transcription_factor)
             else None,
-            histone_mark_code=histone_mark
-            if isinstance(histone_mark, str)
+            histone_mark_code=histone_mark if pd.notna(histone_mark) else None,
+            gtex_tissue=gtex_tissue if pd.notna(gtex_tissue) else None,
+            assay=assay if pd.notna(assay) else None,
+            data_source=data_source if pd.notna(data_source) else None,
+            genetically_modified=genetically_modified
+            if pd.notna(genetically_modified)
             else None,
-            gtex_tissue=gtex_tissue,
-            assay=assay,
-            data_source=data_source,
-            genetically_modified=genetically_modified,
-            endedness=endedness,
-            nonzero_mean=nonzero_mean,
+            endedness=endedness if pd.notna(endedness) else None,
+            nonzero_mean=nonzero_mean if pd.notna(nonzero_mean) else None,
         )
     )
 
@@ -203,7 +205,7 @@ def metadata_from_proto(
   """
   metadata = []
   for track_proto in proto.metadata:
-    track_metadata: dict[str, str | int | float] = {
+    track_metadata: dict[str, str | int | float | bool] = {
         'name': track_proto.name,
         'strand': str(genome.Strand.from_proto(track_proto.strand)),
     }

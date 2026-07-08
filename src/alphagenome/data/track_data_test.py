@@ -49,10 +49,10 @@ class TrackDataInitTest(parameterized.TestCase):
     if include_ontologies:
       self.assertIsNotNone(tdata.ontology_terms)
       self.assertEqual(
-          [
+          pd.Series([
               o.ontology_curie if o is not None else None
               for o in tdata.ontology_terms
-          ],
+          ]).tolist(),
           metadata['ontology_curie'].tolist(),
       )
     else:
@@ -1011,7 +1011,8 @@ class TrackDataConcatTest(parameterized.TestCase):
       with self.assertRaises(ValueError):
         track_data.concat([tdata, tdata2], ('name', new_metadata_values))
       self.assertSequenceEqual(
-          list(tdata3.metadata['new_column'].unique()), new_metadata_values
+          list(tdata3.metadata['new_column'].unique()),
+          pd.Series(new_metadata_values).to_list(),
       )
     else:
       self.assertNotIn('new_column', tdata3.metadata.columns)

@@ -58,9 +58,10 @@ def _calculate_track_masks(
       (track_metadata['strand'] == '.')
       & track_metadata['name'].isin(stranded_track_names)
   ).values
-  positive_track_mask &= ~duplicate_unstranded_track_mask
-  negative_track_mask &= ~duplicate_unstranded_track_mask
-  return positive_track_mask, negative_track_mask
+  return (
+      positive_track_mask & ~duplicate_unstranded_track_mask,
+      negative_track_mask & ~duplicate_unstranded_track_mask,
+  )
 
 
 def merge_stranded_track_metadata(
@@ -147,7 +148,8 @@ def merge_stranded_gene_tracks(
   merged_scores = _merge_scores(scores.X)
   merged_layers = {}
   for k, v in scores.layers.items():
-    merged_layers[k] = _merge_scores(v)
+    if k is not None:
+      merged_layers[k] = _merge_scores(v)
 
   merged_metadata = scores.var[positive_track_mask].reset_index(drop=True)
   merged_metadata['strand'] = '.'
@@ -200,7 +202,7 @@ def unmerge_stranded_gene_tracks(
     if not missing_tracks.all():
       raise ValueError(
           'Scores missing tracks to unmerge! Missing tracks: '
-          f'{track_metadata[~missing_tracks]["name"].values}.'
+          f'{track_metadata[~missing_tracks]["name"].tolist()}.'
       )
 
   positive_gene_mask = ((scores.obs['strand'] == '+').values)[:, np.newaxis]
@@ -223,7 +225,8 @@ def unmerge_stranded_gene_tracks(
   unmerged_scores = _unmerge_scores(scores.X)
   unmerged_layers = {}
   for k, v in scores.layers.items():
-    unmerged_layers[k] = _unmerge_scores(v)
+    if k is not None:
+      unmerged_layers[k] = _unmerge_scores(v)
 
   return anndata.AnnData(
       unmerged_scores,
