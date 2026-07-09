@@ -171,7 +171,7 @@ def metadata_to_proto(
             if pd.notna(strand)
             else None,
             ontology_term=ontology.from_curie(ontology_curie).to_proto()
-            if pd.notna(ontology_curie)
+            if pd.notna(ontology_curie) and ontology_curie
             else None,
             biosample=biosample,
             transcription_factor_code=transcription_factor
