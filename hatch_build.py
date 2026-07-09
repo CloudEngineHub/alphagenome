@@ -17,7 +17,7 @@
 import os
 from typing import Any
 from grpc_tools import protoc
-from hatchling.builders.hooks.plugin.interface import BuildHookInterface  # pylint: disable=g-importing-member
+from hatchling.builders.hooks.plugin import interface
 
 
 _ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
@@ -31,7 +31,7 @@ _ALPHAGENOME_PROTOS = (
 )
 
 
-class GenerateProtos(BuildHookInterface):
+class GenerateProtos(interface.BuildHookInterface):
   """Generates Python protobuf bindings for alphagenome.protos."""
 
   def initialize(self, version: str, build_data: dict[str, Any]) -> None:
@@ -43,6 +43,7 @@ class GenerateProtos(BuildHookInterface):
           f'--proto_path={_ROOT_DIR}',
           f'--python_out={_ROOT_DIR}',
           f'--grpc_python_out={_ROOT_DIR}',
+          f'--pyi_out={_ROOT_DIR}',
           os.path.join(_ROOT_DIR, proto_path),
       ]
       if protoc.main(proto_args) != 0:
