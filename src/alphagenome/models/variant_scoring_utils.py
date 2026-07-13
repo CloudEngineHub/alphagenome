@@ -160,6 +160,7 @@ def merge_stranded_gene_tracks(
       obs=scores.obs,
       var=merged_metadata,
       layers=merged_layers,
+      uns=scores.uns,
   )
 
 
@@ -233,4 +234,5 @@ def unmerge_stranded_gene_tracks(
       obs=scores.obs,
       var=track_metadata,
       layers=unmerged_layers,
+      uns=scores.uns,
   )

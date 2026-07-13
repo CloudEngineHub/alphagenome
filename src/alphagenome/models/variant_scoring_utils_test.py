@@ -20,15 +20,17 @@ import numpy as np
 import pandas as pd
 
 
-def _assert_anndata_equal(result: anndata.AnnData, expected: anndata.AnnData):
-  np.testing.assert_array_equal(result.X, expected.X)
-  pd.testing.assert_frame_equal(result.obs, expected.obs)
-  pd.testing.assert_frame_equal(result.var, expected.var)
-  for k, v in expected.layers.items():
-    np.testing.assert_array_equal(result.layers[k], v)
-
-
 class VariantScoringUtilsTest(parameterized.TestCase):
+
+  def _assert_anndata_equal(
+      self, result: anndata.AnnData, expected: anndata.AnnData
+  ):
+    np.testing.assert_array_equal(result.X, expected.X)
+    pd.testing.assert_frame_equal(result.obs, expected.obs)
+    pd.testing.assert_frame_equal(result.var, expected.var)
+    self.assertMappingEqual(result.uns, expected.uns)
+    for k, v in expected.layers.items():
+      np.testing.assert_array_equal(result.layers[k], v)
 
   @parameterized.named_parameters(
       dict(
@@ -98,6 +100,7 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   },
                   index=['0', '1', '2'],
               ),
+              uns={'foo': 'bar'},
           ),
           expected=anndata.AnnData(
               X=np.arange(1, 7, dtype=np.float32).reshape((3, 2)),
@@ -112,6 +115,7 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   {'name': ['track1', 'track2'], 'strand': '.'},
                   index=['0', '1'],
               ),
+              uns={'foo': 'bar'},
           ),
       ),
       dict(
@@ -132,6 +136,7 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   },
                   index=['0', '1', '2', '3', '4'],
               ),
+              uns={'foo': 'bar'},
           ),
           expected=anndata.AnnData(
               X=np.array([[0.0, 1.0, 4.0], [2.0, 3.0, 4.0]], dtype=np.float32),
@@ -143,6 +148,7 @@ class VariantScoringUtilsTest(parameterized.TestCase):
                   {'name': ['t1', 't2', 't3'], 'strand': '.'},
                   index=['0', '1', '2'],
               ),
+              uns={'foo': 'bar'},
           ),
       ),
       dict(
@@ -300,13 +306,13 @@ class VariantScoringUtilsTest(parameterized.TestCase):
       expected_unmerged: anndata.AnnData | None = None,
   ):
     result = variant_scoring_utils.merge_stranded_gene_tracks(scores)
-    _assert_anndata_equal(result, expected)
+    self._assert_anndata_equal(result, expected)
 
     round_trip = variant_scoring_utils.unmerge_stranded_gene_tracks(
         result, track_metadata=scores.var
     )
     expected_unmerged = expected_unmerged or scores
-    _assert_anndata_equal(round_trip, expected_unmerged)
+    self._assert_anndata_equal(round_trip, expected_unmerged)
 
   @parameterized.named_parameters(
       dict(
