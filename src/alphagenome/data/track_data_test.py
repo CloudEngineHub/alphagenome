@@ -1097,5 +1097,22 @@ class TrackDataInterleaveTest(absltest.TestCase):
     )
 
 
+class TrackDataHelperMethodsTest(parameterized.TestCase):
+
+  def test_with_name_suffix(self):
+    values = np.arange(15).reshape((5, 3)).astype(np.int32)
+    metadata = pd.DataFrame({
+        'name': ['first', 'second', 'third'],
+        'strand': ['+', '-', '.'],
+    })
+    tdata = track_data.TrackData(values, metadata)
+    suffixed = tdata.with_name_suffix('_suffix')
+    self.assertListEqual(
+        list(suffixed.names), ['first_suffix', 'second_suffix', 'third_suffix']
+    )
+    # Check that original is not modified
+    self.assertListEqual(list(tdata.names), ['first', 'second', 'third'])
+
+
 if __name__ == '__main__':
   absltest.main()

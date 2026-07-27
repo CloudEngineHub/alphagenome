@@ -192,6 +192,12 @@ class TrackData:
         uns=copy.deepcopy(self.uns),
     )
 
+  def with_name_suffix(self, suffix: str) -> 'TrackData':
+    """Returns a new `TrackData` object with suffixed track names."""
+    new_metadata = self.metadata.copy()
+    new_metadata['name'] = new_metadata['name'] + suffix
+    return dataclasses.replace(self, metadata=new_metadata)
+
   def bin_index(self, relative_position: int) -> int:
     """Returns the bin index for a relative position.
 
