@@ -1113,6 +1113,33 @@ class TrackDataHelperMethodsTest(parameterized.TestCase):
     # Check that original is not modified
     self.assertListEqual(list(tdata.names), ['first', 'second', 'third'])
 
+  def test_with_metadata_column(self):
+    values = np.arange(15).reshape((5, 3)).astype(np.int32)
+    metadata = pd.DataFrame({
+        'name': ['first', 'second', 'third'],
+        'strand': ['+', '-', '.'],
+    })
+    tdata = track_data.TrackData(values, metadata)
+    updated = tdata.with_metadata_column('biosample_name', 'cell_0')
+    self.assertIn('biosample_name', updated.metadata.columns)
+    self.assertListEqual(
+        list(updated.metadata['biosample_name']), ['cell_0', 'cell_0', 'cell_0']
+    )
+    self.assertNotIn('biosample_name', tdata.metadata.columns)
+
+  def test_with_metadata_column_series(self):
+    values = np.arange(15).reshape((5, 3)).astype(np.int32)
+    metadata = pd.DataFrame({
+        'name': ['first', 'second', 'third'],
+        'strand': ['+', '-', '.'],
+    })
+    tdata = track_data.TrackData(values, metadata)
+    series_value = pd.Series(['a', 'b', 'c'])
+    updated = tdata.with_metadata_column('new_col', series_value)
+    self.assertIn('new_col', updated.metadata.columns)
+    self.assertListEqual(list(updated.metadata['new_col']), ['a', 'b', 'c'])
+    self.assertNotIn('new_col', tdata.metadata.columns)
+
 
 if __name__ == '__main__':
   absltest.main()

@@ -198,6 +198,16 @@ class TrackData:
     new_metadata['name'] = new_metadata['name'] + suffix
     return dataclasses.replace(self, metadata=new_metadata)
 
+  def with_metadata_column(
+      self,
+      name: str,
+      value: str | pd.Series,
+  ) -> 'TrackData':
+    """Returns a new `TrackData` with an added/updated metadata column."""
+    new_metadata = self.metadata.copy()
+    new_metadata[name] = value
+    return dataclasses.replace(self, metadata=new_metadata)
+
   def bin_index(self, relative_position: int) -> int:
     """Returns the bin index for a relative position.
 
