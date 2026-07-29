@@ -21,7 +21,6 @@ from typing import Any
 
 from alphagenome.data import genome
 from alphagenome.data import transcript as transcript_utils
-import intervaltree
 import matplotlib as mpl
 import matplotlib.figure
 import matplotlib.path
@@ -125,11 +124,14 @@ def plot_transcripts(
   )
 
   # Get typical label width and transcript heights.
-  text_width = (
-      _get_text_width(transcripts[0].info[label_name], ax=ax)
-      if label_name is not None
-      else 0
-  )
+  if label_name is not None:
+    text_width = _get_text_width(
+        transcripts[0].info[label_name],
+        ax=ax,
+        fontsize=kwargs.get('fontsize', None),
+    )
+  else:
+    text_width = 0
   heights = _get_placement_heights(
       transcripts, extend_fraction=1.0, front_padding=text_width
   )
@@ -214,65 +216,84 @@ def draw_transcript(
   ax.set_yticklabels([])
   ax.set_yticks([])
 
-  def draw_exons_and_introns(exons, color, exon_height):
-    if not exons:
-      return
-    # 1. Draw all exons.
-    for exon in exons:
-      # TODO: b/377291432 - Skip drawing an exon if it will be drawn below
-      # separately to avoid overlap if alpha<1 and overlaps in vector format.
+  introns = transcript.introns
+  if introns:
+    intron_x = []
+    intron_y = []
+    for intron in introns:
+      intron_x.extend([intron.start + shift, intron.end + shift, None])
+      intron_y.extend([y, y, None])
+    ax.plot(intron_x, intron_y, color=cds_color, linewidth=0.5)
+
+  # TODO: b/377291432 - Skip drawing an exon if it will be drawn below
+  # separately to avoid overlap if alpha<1 and overlaps in vector format.
+  if transcript.cds is not None:
+    for exon in transcript.utr5:
       draw_interval(
           ax=ax,
           interval=exon,
           y=y,
           shift=shift,
-          height=exon_height,
-          color=color,
+          height=utr_height,
+          color=utr5_color,
+          **kwargs,
+      )
+    for exon in transcript.cds:
+      draw_interval(
+          ax=ax,
+          interval=exon,
+          y=y,
+          shift=shift,
+          height=cds_height,
+          color=cds_color,
+          **kwargs,
+      )
+    for exon in transcript.utr3:
+      draw_interval(
+          ax=ax,
+          interval=exon,
+          y=y,
+          shift=shift,
+          height=utr_height,
+          color=utr3_color,
+          **kwargs,
+      )
+  else:
+    for exon in transcript.exons:
+      draw_interval(
+          ax=ax,
+          interval=exon,
+          y=y,
+          shift=shift,
+          height=utr_height,
+          color=cds_color,
           **kwargs,
       )
 
-    # 2. Draw all introns.
-    for intron in transcript_utils.Transcript(exons).introns:
-      ax.plot([intron.start, intron.end], [y, y], color=color, linewidth=0.5)
-
-  # First draw all exons and introns with UTR height.
-  draw_exons_and_introns(
-      transcript.exons, color=cds_color, exon_height=utr_height
-  )
-  draw_interval(
-      ax=ax,
-      interval=transcript.exons[0],
-      y=y,
-      shift=shift,
-      label=label,
-      height=utr_height,
-      color=cds_color,
-      label_color=label_color,
-      **kwargs,
-  )
-
-  # Draw the first non-coding exon with a special color.
-  first_exon_index = 0 if transcript.is_negative_strand else -1
-  draw_interval(
-      ax=ax,
-      interval=transcript.exons[first_exon_index],
-      y=y,
-      height=utr_height,
-      shift=shift,
-      color=first_noncoding_exon_color,
-      **kwargs,
-  )
-
-  # Add UTRs for coding transcripts.
-  if transcript.cds is not None:
-    draw_exons_and_introns(
-        transcript.utr5, color=utr5_color, exon_height=utr_height
+  # Draw the first non-coding exon with a special color if specified.
+  if transcript.exons:
+    first_exon_index = 0 if transcript.is_negative_strand else -1
+    draw_interval(
+        ax=ax,
+        interval=transcript.exons[first_exon_index],
+        y=y,
+        height=utr_height,
+        shift=shift,
+        color=first_noncoding_exon_color,
+        **kwargs,
     )
-    draw_exons_and_introns(
-        transcript.cds, color=cds_color, exon_height=cds_height
-    )
-    draw_exons_and_introns(
-        transcript.utr3, color=utr3_color, exon_height=utr_height
+
+  if label is not None and transcript.exons:
+    draw_interval(
+        ax=ax,
+        interval=transcript.exons[0],
+        y=y,
+        shift=shift,
+        label=label,
+        height=utr_height,
+        color=cds_color,
+        label_color=label_color,
+        **kwargs,
     )
 
   # Draw strand arrows across the full transcript span.
@@ -314,7 +335,7 @@ def draw_strand_arrows(
     num_transcripts: Total number of transcripts being drawn.
     max_arrows_per_intron: Maximum number of arrows per intron.
   """
-  introns = transcript_utils.Transcript(transcript.exons).introns
+  introns = transcript.introns
   if not introns:
     return
 
@@ -438,44 +459,71 @@ def _get_placement_heights(
     extend_fraction: float = 1.0,
     front_padding: float = 0.0,
 ) -> dict[Any, int]:
-  """Get heights at which to place the transcripts."""
-  # TODO: b/376672690 - Implement simpler packing algorithm.
-  levels = [intervaltree.IntervalTree()]
-  # Sort transcripts by length and start placing longest transcripts first.
+  """Get heights at which to place the transcripts.
+
+  Uses a greedy interval packing algorithm: transcripts are sorted by width in
+  descending order and placed sequentially into the highest non-overlapping
+  vertical row level.
+
+  Args:
+    transcripts: Sequence of transcripts to place.
+    extend_fraction: Multiplier for extending transcript end bounds.
+    front_padding: Extra padding to subtract from transcript start bounds.
+
+  Returns:
+    Mapping of transcript ID to vertical row level index.
+  """
   sorted_transcripts = sorted(
       transcripts, key=lambda x: x.transcript_interval.width, reverse=True
   )
+  level_intervals: list[list[tuple[float, float]]] = []
   transcript_levels = {}
   for transcript in sorted_transcripts:
+    t_start = transcript.transcript_interval.start - front_padding
+    t_end = int(transcript.transcript_interval.end * extend_fraction)
     placed = False
     level_idx = 0
     while not placed:
-      if level_idx >= len(levels):
-        levels.append(intervaltree.IntervalTree())
-      if levels[level_idx].overlaps(
-          transcript.transcript_interval.start - front_padding,
-          transcript.transcript_interval.end,
-      ):
-        # Overlaps an existing interval -> increase the level.
+      if level_idx >= len(level_intervals):
+        level_intervals.append([])
+      overlaps = any(
+          (t_start < end and t_end > start)
+          for start, end in level_intervals[level_idx]
+      )
+      if overlaps:
         level_idx += 1
       else:
-        # Doesn't overlap. Remember the interval.
-        levels[level_idx].addi(
-            transcript.transcript_interval.start - front_padding,
-            int(transcript.transcript_interval.end * extend_fraction),
-        )
+        level_intervals[level_idx].append((t_start, t_end))
         transcript_levels[transcript.transcript_id] = level_idx
         placed = True
+
+  max_level = len(level_intervals) - 1 if level_intervals else 0
   return {
-      transcript_id: len(levels) - 1 - level_idx
+      transcript_id: max_level - level_idx
       for transcript_id, level_idx in transcript_levels.items()
   }
 
 
-def _get_text_width(label: str, ax: plt.Axes, **kwargs) -> float:
+def _get_text_width(
+    label: str, ax: plt.Axes, fontsize: float | None = None
+) -> float:
   """Get text width in data coordinates."""
-  text = ax.text(0, 0, label, **kwargs)
-  plt.gcf().canvas.draw()
-  bb = text.get_window_extent().transformed(ax.transData.inverted())
-  text.remove()  # Remove text.
-  return bb.x1 - bb.x0
+  if not label:
+    return 0.0
+
+  if fontsize is None:
+    fontsize = float(mpl.rcParams['font.size'])
+
+  xlim = ax.get_xlim()
+  x_span = abs(xlim[1] - xlim[0])
+  text_width_pts = len(label) * 0.6 * fontsize
+
+  fig = ax.get_figure()
+  if fig is not None:
+    fig_width_inches = fig.get_size_inches()[0]
+    ax_width_inches = ax.get_position().width * fig_width_inches
+    ax_width_pts = ax_width_inches * 72.0
+    if ax_width_pts > 0:
+      return text_width_pts * (x_span / ax_width_pts)
+
+  return len(label) * 0.008 * x_span

@@ -38,7 +38,6 @@ dependencies=[
     'fsspec',
     'grpcio>=1.67.1',
     'immutabledict',
-    'intervaltree',
     'jaxtyping',
     'matplotlib',
     'ml_dtypes',
