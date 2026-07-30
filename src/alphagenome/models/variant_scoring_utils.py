@@ -14,6 +14,8 @@
 
 """Utility functions for variant scoring."""
 
+from collections.abc import Mapping
+
 import anndata
 import numpy as np
 import pandas as pd
@@ -147,7 +149,7 @@ def merge_stranded_gene_tracks(
 
   merged_scores = _merge_scores(scores.X)
   merged_layers = {}
-  for k, v in scores.layers.items():
+  for k, v in scores.layers.items():  # pyrefly: ignore[missing-attribute]
     if k is not None:
       merged_layers[k] = _merge_scores(v)
 
@@ -225,8 +227,12 @@ def unmerge_stranded_gene_tracks(
 
   unmerged_scores = _unmerge_scores(scores.X)
   unmerged_layers = {}
-  for k, v in scores.layers.items():
+
+  layers = scores.layers
+  assert isinstance(layers, Mapping)
+  for k, v in layers.items():
     if k is not None:
+      assert isinstance(v, np.ndarray)
       unmerged_layers[k] = _unmerge_scores(v)
 
   return anndata.AnnData(

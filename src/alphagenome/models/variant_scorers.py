@@ -14,7 +14,7 @@
 
 """Module containing variant scorer dataclasses for variant scoring."""
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import dataclasses
 import enum
 import itertools
@@ -764,8 +764,10 @@ def tidy_anndata(
   # Formatting final touches.
   df = df.loc[:, id_columns + gene_columns + scorer_columns + track_columns]
   df['raw_score'] = adata.X.T.reshape((-1,))
-  if 'quantiles' in adata.layers:
-    df['quantile_score'] = adata.layers['quantiles'].T.reshape((-1,))
+  layers = adata.layers
+  assert isinstance(layers, Mapping)
+  if 'quantiles' in layers:
+    df['quantile_score'] = layers['quantiles'].T.reshape((-1,))
 
   # Remove entries where DNA strands are mismatched. Note that we still retain
   # all tracks that have strand '.' which indicates the data is unstranded.
@@ -856,7 +858,9 @@ def tidy_scores(
   if isinstance(scores, Sequence):
     tidied_anndata = [
         tidy_anndata(adata, match_gene_strand, include_extended_metadata)
-        for adata in itertools.chain.from_iterable(scores)
+        for adata in itertools.chain.from_iterable(
+            scores  # pyrefly: ignore[bad-argument-type]
+        )
     ]
     if not tidied_anndata:
       return None

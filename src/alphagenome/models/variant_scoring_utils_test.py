@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Mapping
+
 from absl.testing import absltest
 from absl.testing import parameterized
 from alphagenome.models import variant_scoring_utils
@@ -29,8 +31,12 @@ class VariantScoringUtilsTest(parameterized.TestCase):
     pd.testing.assert_frame_equal(result.obs, expected.obs)
     pd.testing.assert_frame_equal(result.var, expected.var)
     self.assertMappingEqual(result.uns, expected.uns)
-    for k, v in expected.layers.items():
-      np.testing.assert_array_equal(result.layers[k], v)
+    expected_layers = expected.layers
+    assert isinstance(expected_layers, Mapping)
+    layers = result.layers
+    assert isinstance(layers, Mapping)
+    for k, v in expected_layers.items():
+      np.testing.assert_array_equal(layers[k], v)
 
   @parameterized.named_parameters(
       dict(

@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import dataclasses
 import functools
 import time
@@ -178,8 +178,12 @@ def _generate_variant_scoring_protos(
             )
         )
 
-    if 'quantiles' in score.layers:
-      score_tensor = np.stack([score.X, score.layers['quantiles']])
+    layers = score.layers
+    assert isinstance(layers, Mapping)
+    if 'quantiles' in layers:
+      quantile_scores = layers['quantiles']
+      assert isinstance(quantile_scores, np.ndarray)
+      score_tensor = np.stack([score.X, quantile_scores])
     else:
       score_tensor = score.X[np.newaxis]
 
@@ -398,12 +402,16 @@ class ClientTest(parameterized.TestCase):
     if 'variant' in expected.uns:
       self.assertEqual(actual.uns['variant'], expected.uns['variant'])
     np.testing.assert_array_equal(actual.X, expected.X)
-    if 'quantiles' in expected.layers:
+    expected_layers = expected.layers
+    assert isinstance(expected_layers, Mapping)
+    layers = actual.layers
+    assert isinstance(layers, Mapping)
+    if 'quantiles' in expected_layers:
       np.testing.assert_array_equal(
-          actual.layers['quantiles'], expected.layers['quantiles']
+          layers['quantiles'], expected_layers['quantiles']
       )
     else:
-      self.assertNotIn('quantiles', actual.layers)
+      self.assertNotIn('quantiles', layers)
 
   def setUp(self):
     super().setUp()
