@@ -19,7 +19,7 @@ package google.gdm.gdmscience.alphagenome.v1main;
 import "alphagenome/protos/dna_model.proto";
 import "alphagenome/protos/tensor.proto";
 
-option go_package = "google.golang.org/genproto/googleapis/gdm/gdmscience/alphagenome/v1main;alphagenome";
+option go_package = "cloud.google.com/go/gdm/gdmscience/alphagenome/apiv1main/alphagenomepb;alphagenomepb";
 option java_multiple_files = true;
 option java_outer_classname = "DnaModelServiceProto";
 option java_package = "com.google.gdm.gdmscience.alphagenome.v1main";
@@ -171,7 +171,7 @@ message ScoreIntervalRequest {
   // Model version to use.
   string model_version = 4;
 
-  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // Optional. If True, merge stranded gene tracks into a single unstranded
   // track.
   bool merge_stranded_gene_tracks = 5;
 }
@@ -207,7 +207,7 @@ message ScoreVariantRequest {
   // Model version to use.
   string model_version = 5;
 
-  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // Optional. If True, merge stranded gene tracks into a single unstranded
   // track.
   bool merge_stranded_gene_tracks = 6;
 }
@@ -248,7 +248,7 @@ message ScoreIsmVariantRequest {
   // Model version to use.
   string model_version = 5;
 
-  // Merge gene-centric scores from stranded tracks into a single unstranded
+  // Optional. If True, merge stranded gene tracks into a single unstranded
   // track.
   bool merge_stranded_gene_tracks = 7;
 }

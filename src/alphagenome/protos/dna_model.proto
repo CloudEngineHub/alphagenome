@@ -18,7 +18,7 @@ package google.gdm.gdmscience.alphagenome.v1main;
 
 import "alphagenome/protos/tensor.proto";
 
-option go_package = "google.golang.org/genproto/googleapis/gdm/gdmscience/alphagenome/v1main;alphagenome";
+option go_package = "cloud.google.com/go/gdm/gdmscience/alphagenome/apiv1main/alphagenomepb;alphagenomepb";
 option java_multiple_files = true;
 option java_outer_classname = "DnaModelProto";
 option java_package = "com.google.gdm.gdmscience.alphagenome.v1main";
@@ -43,7 +43,8 @@ message Variant {
   // The chromosome name, e.g., "chr1".
   string chromosome = 1;
 
-  // The 1-based position of the variant on the chromosome.
+  // The 1-based position of the variant on the chromosome. Must be greater than
+  // 0.
   int64 position = 2;
 
   // The reference base(s) at the variant position. Normally this corresponds to
@@ -479,7 +480,7 @@ enum OutputType {
   // junction.
   OUTPUT_TYPE_SPLICE_JUNCTIONS = 9;
 
-  // Contact map tracks capturing 3D chromatin contact probabilities.
+  // Contact map tracks capturing 3D DNA-DNA contact probabilities.
   OUTPUT_TYPE_CONTACT_MAPS = 11;
 
   // Precision Run-On sequencing and capping, used to measure gene expression.
@@ -516,10 +517,10 @@ enum AggregationType {
   // Unspecified aggregation type.
   AGGREGATION_TYPE_UNSPECIFIED = 0;
 
-  // Difference of means, i.e., mean(ALT) - mean(REF).
+  // Difference of means, i.e. mean(ALT) - mean(REF).
   AGGREGATION_TYPE_DIFF_MEAN = 1;
 
-  // Difference of sums, i.e., sum(ALT) - sum(REF).
+  // Difference of sums, i.e. sum(ALT) - sum(REF).
   AGGREGATION_TYPE_DIFF_SUM = 2;
 
   // Log scales predictions, then takes the sum and then the difference, i.e.
@@ -527,7 +528,7 @@ enum AggregationType {
   AGGREGATION_TYPE_DIFF_SUM_LOG2 = 3;
 
   // Takes the difference of ALT and REF predictions, then computes the L2 norm,
-  // i.e., l2_norm(ALT - REF).
+  // i.e. l2_norm(ALT - REF).
   AGGREGATION_TYPE_L2_DIFF = 4;
 
   // Log scales the predictions + 1, takes the difference of `ALT` and `REF`
@@ -536,13 +537,13 @@ enum AggregationType {
   AGGREGATION_TYPE_L2_DIFF_LOG1P = 8;
 
   // Takes the sum of predictions, applies a log transform, then takes the
-  // difference between predictions, i.e., log2(sum(ALT)) - log2(sum(REF)).
+  // difference between predictions, i.e. log2(sum(ALT)) - log2(sum(REF)).
   AGGREGATION_TYPE_DIFF_LOG2_SUM = 5;
 
-  // Maximum of means, i.e., max(mean(ALT), mean(REF)).
+  // Maximum of means, i.e. max(mean(ALT), mean(REF)).
   AGGREGATION_TYPE_ACTIVE_MEAN = 6;
 
-  // Maximum of sums, i.e., max(sum(ALT), sum(REF)).
+  // Maximum of sums, i.e. max(sum(ALT), sum(REF)).
   AGGREGATION_TYPE_ACTIVE_SUM = 7;
 }
 
