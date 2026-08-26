@@ -19,7 +19,6 @@ from typing import Any
 from grpc_tools import protoc
 from hatchling.builders.hooks.plugin import interface
 
-
 _ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
 
 # Tuple of proto message definitions to build Python bindings for. Paths must

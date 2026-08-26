@@ -39,7 +39,6 @@ from matplotlib import colors as plt_colors
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # String, RGB or RGBA color.
 _ColorType = (
     str | tuple[float, float, float] | tuple[float, float, float, float]

@@ -26,7 +26,6 @@ from alphagenome.data import transcript as transcript_utils
 import pandas as pd
 import pyranges
 
-
 _GTF_PATH = flags.DEFINE_string(
     'gtf_path', None, 'Path to GTF file.', required=True
 )

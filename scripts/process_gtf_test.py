@@ -19,7 +19,6 @@ import pandas as pd
 
 from . import process_gtf
 
-
 _EXAMPLE_GTF = r"""
 chr1	FOO	gene	12100	21316	.	+	.	gene_id "GENE00000000001.1";
 chr1	FOO	transcript	12100	18244	.	+	.	gene_id "GENE00000000001.1"; transcript_id "TRANS00000000001.2";

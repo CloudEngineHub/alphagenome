@@ -20,7 +20,6 @@ from alphagenome.models import dna_client
 import immutabledict
 import pandas as pd
 
-
 _DEFAULT_EXAMPLE_REGIONS = immutabledict.immutabledict({
     dna_client.Organism.HOMO_SAPIENS: (
         'https://github.com/calico/borzoi/raw/'

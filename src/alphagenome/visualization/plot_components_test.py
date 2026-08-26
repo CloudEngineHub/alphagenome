@@ -23,7 +23,6 @@ import matplotlib
 import numpy as np
 import pandas as pd
 
-
 _ATAC_METADATA = pd.DataFrame(
     dict(
         name=['foo', 'bar', 'baz', 'buz', 'fux'],

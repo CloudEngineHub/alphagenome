@@ -18,7 +18,6 @@ from alphagenome.data import fold_intervals
 from alphagenome.models import dna_client
 import pandas as pd
 
-
 _dummy_intervals = pd.DataFrame({
     'chromosome': ['chr' + str(i) for i in range(8)],
     'start': [i for i in range(0, 8000, 1000)],

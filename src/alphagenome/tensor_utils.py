@@ -22,7 +22,6 @@ import ml_dtypes
 import numpy as np
 import zstandard
 
-
 _TENSOR_DTYPE_TO_NUMPY_DTYPE = immutabledict.immutabledict({
     tensor_pb2.DataType.DATA_TYPE_BFLOAT16: np.dtype(ml_dtypes.bfloat16),
     tensor_pb2.DataType.DATA_TYPE_FLOAT16: np.dtype(np.float16),

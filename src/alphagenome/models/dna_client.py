@@ -42,7 +42,6 @@ import numpy as np
 import pandas as pd
 import tqdm.auto
 
-
 # Supported DNA sequence lengths.
 SEQUENCE_LENGTH_16KB = 2**14  # 16_384
 SEQUENCE_LENGTH_100KB = 2**17  # 131_072

@@ -22,7 +22,6 @@ from alphagenome.models import dna_output
 import numpy as np
 import pandas as pd
 
-
 _EXAMPLE_ONTOLOGY_TERM = 'UBERON:0002037'
 
 _ATAC_METADATA = pd.DataFrame(
