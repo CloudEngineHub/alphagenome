@@ -528,10 +528,8 @@ class OverlaidTracks(AbstractComponent):
       raise ValueError('.interval needs to be set in track_data.')
 
     if self._shared_y_scale:
-      # We compute min and max over all the track data arrays in the tdata dict.
-      all_values = np.stack([arr.values for arr in self._tdata.values()])
-      self._vmin = np.min(all_values)
-      self._vmax = np.max(all_values)
+      self._vmin = min(np.min(td.values) for td in self._tdata.values())
+      self._vmax = max(np.max(td.values) for td in self._tdata.values())
 
   def get_ax_height(self, axis_index: int) -> float:
     """Returns the height of the axis."""
