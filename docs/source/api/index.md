@@ -1,6 +1,6 @@
 # API
 
-``` {toctree}
+```{toctree}
 :maxdepth: 1
 :hidden:
 

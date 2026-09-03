@@ -4,11 +4,11 @@ Classes and utilities for manipulating genomics data.
 
 ## Fold Intervals
 
-``` {eval-rst}
+```{eval-rst}
 .. currentmodule:: alphagenome
 ```
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -21,11 +21,11 @@ Classes and utilities for manipulating genomics data.
 
 ## Genome
 
-``` {eval-rst}
+```{eval-rst}
 .. currentmodule:: alphagenome
 ```
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -38,7 +38,7 @@ Classes and utilities for manipulating genomics data.
 
 ## Gene annotation
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -56,7 +56,7 @@ Classes and utilities for manipulating genomics data.
 
 ## Junction data
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -67,7 +67,7 @@ Classes and utilities for manipulating genomics data.
 
 ## Ontology
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -78,7 +78,7 @@ Classes and utilities for manipulating genomics data.
 
 ## Track data
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
@@ -86,14 +86,11 @@ Classes and utilities for manipulating genomics data.
     data.track_data.TrackData
     data.track_data.concat
     data.track_data.interleave
-    data.track_data.metadata_to_proto
-    data.track_data.metadata_from_proto
-    data.track_data.from_protos
 ```
 
 ## Transcript
 
-``` {eval-rst}
+```{eval-rst}
 
 .. autosummary::
     :toctree: generated
