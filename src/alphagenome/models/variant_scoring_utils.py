@@ -151,7 +151,7 @@ def merge_stranded_gene_tracks(
   merged_layers = {}
   for k, v in scores.layers.items():  # pyrefly: ignore[missing-attribute]
     if k is not None:
-      merged_layers[k] = _merge_scores(v)
+      merged_layers[k] = _merge_scores(v)  # pyrefly: ignore[bad-argument-type]
 
   merged_metadata = scores.var[positive_track_mask].reset_index(drop=True)
   merged_metadata['strand'] = '.'
