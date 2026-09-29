@@ -17,7 +17,7 @@ from absl.testing import parameterized
 from alphagenome.models import dna_output
 from alphagenome.models import interval_scorers
 
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 
 
 class IntervalScorersTest(parameterized.TestCase):

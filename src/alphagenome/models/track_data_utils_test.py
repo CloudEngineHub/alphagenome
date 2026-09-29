@@ -17,7 +17,7 @@ from absl.testing import parameterized
 from alphagenome import tensor_utils
 from alphagenome.data import genome
 from alphagenome.data import track_data
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 from alphagenome.models import track_data_utils
 import ml_dtypes
 import numpy as np

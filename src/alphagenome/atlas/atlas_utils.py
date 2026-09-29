@@ -18,7 +18,7 @@ from collections.abc import Sequence
 
 from alphagenome.data import ontology
 
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 
 
 def build_filter(

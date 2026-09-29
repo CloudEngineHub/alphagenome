@@ -32,9 +32,9 @@ from alphagenome.models import interval_scorers
 from alphagenome.models import junction_data_utils
 from alphagenome.models import track_data_utils
 from alphagenome.models import variant_scorers
-from alphagenome.protos import dna_model_pb2
-from alphagenome.protos import dna_model_service_pb2
-from alphagenome.protos import dna_model_service_pb2_grpc
+from alphagenome.protos.v1 import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_service_pb2
+from alphagenome.protos.v1 import dna_model_service_pb2_grpc
 import anndata
 import grpc
 import numpy as np

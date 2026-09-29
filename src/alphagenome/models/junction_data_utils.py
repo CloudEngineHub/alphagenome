@@ -20,8 +20,8 @@ from alphagenome import tensor_utils
 from alphagenome.data import genome
 from alphagenome.data import junction_data
 from alphagenome.data import ontology
-from alphagenome.protos import dna_model_pb2
 from alphagenome.protos import tensor_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import numpy as np
 import pandas as pd
 

@@ -16,7 +16,7 @@ from unittest import mock
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 from alphagenome.data import genome
 import numpy as np
 

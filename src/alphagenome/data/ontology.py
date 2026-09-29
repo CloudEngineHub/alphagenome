@@ -18,7 +18,7 @@ from collections.abc import Sequence
 import dataclasses
 import enum
 
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import immutabledict
 
 

@@ -22,7 +22,7 @@ import re
 import sys
 from typing import Any, Protocol
 
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import numpy as np
 from typing_extensions import Self
 

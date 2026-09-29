@@ -22,7 +22,7 @@ from alphagenome import typing
 from alphagenome.data import junction_data
 from alphagenome.data import ontology
 from alphagenome.data import track_data
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import pandas as pd
 
 

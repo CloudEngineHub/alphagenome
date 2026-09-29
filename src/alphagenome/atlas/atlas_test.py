@@ -20,8 +20,8 @@ from absl.testing import absltest
 from absl.testing import parameterized
 from alphagenome.atlas import atlas
 from alphagenome.data import genome
-from alphagenome.protos import dna_model_pb2
 from alphagenome.protos import atlas_service_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import anndata
 import grpc
 import numpy as np

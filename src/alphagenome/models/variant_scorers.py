@@ -22,7 +22,7 @@ import math
 from typing import TypeAlias
 
 from alphagenome.models import dna_output
-from alphagenome.protos import dna_model_pb2
+from alphagenome.protos.v1 import dna_model_pb2
 import anndata
 import immutabledict
 import pandas as pd

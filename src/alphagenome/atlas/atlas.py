@@ -25,9 +25,9 @@ from alphagenome.atlas import atlas_utils
 from alphagenome.data import genome
 from alphagenome.data import ontology
 from alphagenome.models import track_data_utils
-from alphagenome.protos import dna_model_pb2
 from alphagenome.protos import atlas_service_pb2
 from alphagenome.protos import atlas_service_pb2_grpc
+from alphagenome.protos.v1 import dna_model_pb2
 import anndata
 import grpc
 import numpy as np
