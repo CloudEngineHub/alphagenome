@@ -57,8 +57,8 @@ column contains key information for biological interpretation such as:
     neuron`.
 
 For a full list of metadata columns available for each output type, please see
-the [navigating data ontologies notebook](colabs/tissue_ontology_mapping), which
-demonstrates how to access and browse track metadata.
+the [navigating data ontologies notebook](colabs/v1/tissue_ontology_mapping),
+which demonstrates how to access and browse track metadata.
 
 <!-- mdformat off(Turn off mdformat to retain myst syntax.) -->
 

@@ -27,4 +27,4 @@ MANIFEST
 **/*pb2*.py
 
 # Ignore nbconvert html files.
-colabs/*.html
+colabs/**/*.html

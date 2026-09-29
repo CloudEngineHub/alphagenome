@@ -258,4 +258,4 @@ For more on the types of variant scorers and how they work, visit the
 [API documentation](api/models.md#variant-scorers).
 
 For a hands-on tutorial on scoring variants on their splicing effect, see the
-[splicing variant scoring notebook](colabs/splicing_variant_scoring).
+[splicing variant scoring notebook](colabs/v1/splicing_variant_scoring).

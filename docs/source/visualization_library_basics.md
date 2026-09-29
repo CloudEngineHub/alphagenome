@@ -10,7 +10,7 @@ matplotlib figures from model API outputs, which we outline here.
 <!-- mdformat off(Turn off mdformat to retain myst syntax.) -->
 
 ```{tip}
-See the {doc}`visualizing predictions tutorial </colabs/visualization_modality_tour>`
+See the {doc}`visualizing predictions tutorial </colabs/v1/visualization_modality_tour>`
 for worked examples of plotting different modalities.
 ```
 

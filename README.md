@@ -88,10 +88,10 @@ The quickest way to get started is to run our example notebooks in
 [Google Colab](https://colab.research.google.com/). Here are some starter
 notebooks:
 
--   [Quick start](https://colab.research.google.com/github/google-deepmind/alphagenome/blob/main/colabs/quick_start.ipynb):
+-   [Quick start](https://colab.research.google.com/github/google-deepmind/alphagenome/blob/main/colabs/v1/quick_start.ipynb):
     An introduction to quickly get you started with using the model and making
     predictions.
--   [Visualizing predictions](https://colab.research.google.com/github/google-deepmind/alphagenome/blob/main/colabs/visualization_modality_tour.ipynb):
+-   [Visualizing predictions](https://colab.research.google.com/github/google-deepmind/alphagenome/blob/main/colabs/v1/visualization_modality_tour.ipynb):
     Learn how to visualize different model predictions using the visualization
     libraries.
 

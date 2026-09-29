@@ -72,6 +72,7 @@ docs = [
     'sphinx-book-theme',
     'sphinx-copybutton',
     'sphinx-remove-toctrees',
+    'sphinx-reredirects',
     'sphinx-design',
     'sphinxcontrib-bibtex>=1.0.0',
 ]
@@ -121,7 +122,7 @@ detached = true
 [tool.hatch.envs.check.scripts]
 format = 'pyink . --check --diff'
 lint = 'pylint .'
-notebook_lint = 'jupyter nbconvert colabs/*.ipynb --to html'
+notebook_lint = 'jupyter nbconvert colabs/*/*.ipynb --to html'
 all = [
   'format',
   'lint',

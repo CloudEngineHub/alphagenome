@@ -7,8 +7,8 @@ Frequently asked questions.
 ### How do I make predictions for a specific genomic region?
 
 You can define any region in either the human or mouse genome, and use the API
-to predict various outputs. See the [quick start Colab](colabs/quick_start) for
-a demonstration.
+to predict various outputs. See the [quick start Colab](colabs/v1/quick_start)
+for a demonstration.
 
 ### How do I specify a genomic region?
 
@@ -89,9 +89,10 @@ for a full list of the output types.
 
 ### How do I find out what tissue or cell-type an output ‘track’ refers to?
 
-Using the [navigating data ontologies notebook](colabs/tissue_ontology_mapping),
-you can look at the output metadata where biosample names and ontology CURIEs
-(IDs) for each track are described.
+Using the
+[navigating data ontologies notebook](colabs/v1/tissue_ontology_mapping), you
+can look at the output metadata where biosample names and ontology CURIEs (IDs)
+for each track are described.
 
 ### What is an ontology CURIE?
 
@@ -210,7 +211,7 @@ You can use any tool to visualize the numerical output, but we provide a Python
 easily visualize the output immediately. You can use our
 [visualization basics guide](project:visualization_library_basics.md) and see
 examples of how to plot different modalities in our
-[visualizing predictions tutorial](colabs/visualization_modality_tour).
+[visualizing predictions tutorial](colabs/v1/visualization_modality_tour).
 
 ### Can I design my own visualizations to work with this library?
 
@@ -258,7 +259,7 @@ score is then computed as:
 This is the approach used in the AlphaGenome paper to score ClinVar variants for
 missplicing. This is the recommended method to assess whether a variant causes
 aberrant splicing. See the
-[splicing variant scoring notebook](colabs/splicing_variant_scoring) for a
+[splicing variant scoring notebook](colabs/v1/splicing_variant_scoring) for a
 step-by-step tutorial.
 
 ### How do I define a variant?
@@ -292,14 +293,14 @@ See the {class}`~alphagenome.data.genome.Variant` docstring for more details.
 ### Are there tools to help me define variants, and run inference for them?
 
 See the
-[scoring and visualizing a single variant notebook](colabs/variant_scoring_ui)
+[scoring and visualizing a single variant notebook](colabs/v1/variant_scoring_ui)
 which walks through how to define a {class}`~alphagenome.data.genome.Variant`
 object and perform inference. Batch inference over many variants can be
 performed using the
-[batch variant scoring notebook](colabs/batch_variant_scoring) which takes a
+[batch variant scoring notebook](colabs/v1/batch_variant_scoring) which takes a
 variant call file (VCF) as input. For scoring variants specifically on their
 splicing effect, see the
-[splicing variant scoring notebook](colabs/splicing_variant_scoring).
+[splicing variant scoring notebook](colabs/v1/splicing_variant_scoring).
 
 ### Can I pass any sequence to {class}`~alphagenome.data.genome.Variant.reference_bases` or does it have to match the reference genome sequence at the variant location?
 
@@ -371,8 +372,8 @@ scorers.
 AlphaGenome's splicing variant scorers predict splice site usage and splice
 junction counts, but they do not directly output Percent Spliced In (PSI)
 values. However, you can derive PSI3/5 values from predicted splicing scores.
-See the [Deriving PSI values Colab](colabs/deriving_PSI_values) for a tutorial
-and details on how to compute PSI values from AlphaGenome outputs.
+See the [Deriving PSI values Colab](colabs/v1/deriving_PSI_values) for a
+tutorial and details on how to compute PSI values from AlphaGenome outputs.
 
 ### Can I predict the combined effect of multiple variants in a haplotype?
 
@@ -380,8 +381,8 @@ Yes. Although the standard API takes a single variant at a time, you can analyze
 the combined effect of multiple variants on the same haplotype by constructing
 alternative sequences containing all variants of interest and comparing the
 predictions to those of the individual variants. See the
-[Haplotype analysis Colab](colabs/haplotype_workaround) for an example workflow
-demonstrating this approach.
+[Haplotype analysis Colab](colabs/v1/haplotype_workaround) for an example
+workflow demonstrating this approach.
 
 ## Other
 

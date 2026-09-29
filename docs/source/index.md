@@ -35,9 +35,9 @@ analyses requiring more than 1 million predictions.
 ## Getting started
 
 You can get started by [getting an API key](https://alphagenome.google/api), and
-following our [Quick Start Guide](./colabs/quick_start.ipynb), or watching our
-[AlphaGenome 101 tutorial](https://youtu.be/Xbvloe13nak). Please also check out
-our installation guide, tutorials with comprehensive overviews of plotting,
+following our [Quick Start Guide](./colabs/v1/quick_start.ipynb), or watching
+our [AlphaGenome 101 tutorial](https://youtu.be/Xbvloe13nak). Please also check
+out our installation guide, tutorials with comprehensive overviews of plotting,
 variant scoring and other use cases, and our API reference documentation.
 
 <!-- mdformat off(Turn off mdformat to retain myst syntax.) -->
@@ -76,7 +76,7 @@ Reference documentation for the `alphagenome` package.
 :maxdepth: 2
 :hidden: False
 
-../colabs/quick_start
+../colabs/v1/quick_start
 installation
 api/index
 tutorials/index

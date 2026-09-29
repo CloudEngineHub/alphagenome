@@ -4,7 +4,7 @@
 :maxdepth: 1
 :hidden:
 
-../colabs/essential_commands
+../colabs/v1/essential_commands
 ../exploring_model_metadata
 ../variant_scoring
 ../visualization_library_basics
@@ -16,7 +16,7 @@
 :gutter: 2
 
 :::{grid-item-card} Essential commands
-:link: ../colabs/essential_commands
+:link: ../colabs/v1/essential_commands
 :link-type: doc
 
 Essential commands for navigating AlphaGenome.

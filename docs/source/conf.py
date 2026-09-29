@@ -68,6 +68,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx_copybutton',
     'sphinx_remove_toctrees',
+    'sphinx_reredirects',
     'sphinx.ext.linkcode',
 ]
 
@@ -203,4 +204,17 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
 
-# TODO: b/377291190 - Look at adding notebook support (see haiku example)
+# Redirects for moved pages, handled by sphinx_reredirects. Maps old docnames
+# (without .html extension) to targets relative to the old page's directory.
+redirects = {
+    'colabs/batch_variant_scoring': 'v1/batch_variant_scoring.html',
+    'colabs/deriving_PSI_values': 'v1/deriving_PSI_values.html',
+    'colabs/essential_commands': 'v1/essential_commands.html',
+    'colabs/example_analysis_workflow': 'v1/example_analysis_workflow.html',
+    'colabs/haplotype_workaround': 'v1/haplotype_workaround.html',
+    'colabs/quick_start': 'v1/quick_start.html',
+    'colabs/splicing_variant_scoring': 'v1/splicing_variant_scoring.html',
+    'colabs/tissue_ontology_mapping': 'v1/tissue_ontology_mapping.html',
+    'colabs/variant_scoring_ui': 'v1/variant_scoring_ui.html',
+    'colabs/visualization_modality_tour': 'v1/visualization_modality_tour.html',
+}
