@@ -310,15 +310,15 @@ class Tracks(AbstractComponent):
     else:
       self._num_tdata = 1
 
-    cmap = plt.get_cmap(cmap)
+    colormap = plt.get_cmap(cmap)
     num_track_sets = self._num_tracks // self._num_tdata
     if truncate_cmap:
       # We do *1.2 to make the color change more gradual. This means that the
       # the upper range of the cmap is never displayed, which often tends to
       # achieve nicer results aesthetically.
-      self._colors = cmap(np.linspace(0, 1, round(num_track_sets * 1.2)))  # pyrefly: ignore[not-callable]
+      self._colors = colormap(np.linspace(0, 1, round(num_track_sets * 1.2)))
     else:
-      self._colors = cmap(np.linspace(0, 1, num_track_sets))  # pyrefly: ignore[not-callable]
+      self._colors = colormap(np.linspace(0, 1, num_track_sets))
 
     if track_colors is not None:
       if isinstance(track_colors, str):
@@ -513,9 +513,9 @@ class OverlaidTracks(AbstractComponent):
         )
     # Otherwise, we define a color from a cmap.
     else:
-      cmap = plt.get_cmap(self._cmap)
-      colors = cmap(np.linspace(0, 1, len(tdata)))  # pyrefly: ignore[not-callable]
-      colors = dict(zip(self._tdata.keys(), colors))
+      colormap = plt.get_cmap(self._cmap)
+      cmap_colors = colormap(np.linspace(0, 1, len(tdata)))
+      colors = dict(zip(self._tdata.keys(), cmap_colors))
 
     self._colors = colors
 
