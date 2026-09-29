@@ -14,8 +14,8 @@
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from alphagenome.models import dna_output
-from alphagenome.models import interval_scorers
+from alphagenome.models.v1 import dna_output
+from alphagenome.models.v1 import interval_scorers
 
 from alphagenome.protos.v1 import dna_model_pb2
 

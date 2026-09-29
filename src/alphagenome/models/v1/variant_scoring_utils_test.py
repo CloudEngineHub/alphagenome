@@ -16,7 +16,7 @@ from collections.abc import Mapping
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from alphagenome.models import variant_scoring_utils
+from alphagenome.models.v1 import variant_scoring_utils
 import anndata
 import numpy as np
 import pandas as pd

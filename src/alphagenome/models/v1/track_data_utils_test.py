@@ -18,7 +18,7 @@ from alphagenome import tensor_utils
 from alphagenome.data import genome
 from alphagenome.data import track_data
 from alphagenome.protos.v1 import dna_model_pb2
-from alphagenome.models import track_data_utils
+from alphagenome.models.v1 import track_data_utils
 import ml_dtypes
 import numpy as np
 import pandas as pd

@@ -16,7 +16,7 @@
 
 import enum
 
-from alphagenome.models import dna_client
+from alphagenome.models.v1 import dna_client
 import immutabledict
 import pandas as pd
 

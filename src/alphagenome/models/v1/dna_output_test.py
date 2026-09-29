@@ -18,7 +18,7 @@ from alphagenome.data import genome
 from alphagenome.data import junction_data
 from alphagenome.data import ontology
 from alphagenome.data import track_data
-from alphagenome.models import dna_output
+from alphagenome.models.v1 import dna_output
 import numpy as np
 import pandas as pd
 

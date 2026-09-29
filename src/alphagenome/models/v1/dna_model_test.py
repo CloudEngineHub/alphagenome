@@ -19,10 +19,10 @@ from absl.testing import absltest
 from absl.testing import parameterized
 from alphagenome.data import genome
 from alphagenome.data import ontology
-from alphagenome.models import dna_model
-from alphagenome.models import dna_output
-from alphagenome.models import interval_scorers as interval_scorers_lib
-from alphagenome.models import variant_scorers as variant_scorers_lib
+from alphagenome.models.v1 import dna_model
+from alphagenome.models.v1 import dna_output
+from alphagenome.models.v1 import interval_scorers as interval_scorers_lib
+from alphagenome.models.v1 import variant_scorers as variant_scorers_lib
 import anndata
 
 

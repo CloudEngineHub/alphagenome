@@ -12,6 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Backward-compatible re-export shim for alphagenome.models.dna_output."""
-
-from alphagenome.models.v1.dna_output import *  # pylint: disable=wildcard-import,unused-wildcard-import
+"""Models library for interacting with AlphaGenome models."""

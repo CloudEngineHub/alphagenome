@@ -15,7 +15,7 @@
 from absl.testing import absltest
 from absl.testing import parameterized
 from alphagenome.data import fold_intervals
-from alphagenome.models import dna_client
+from alphagenome.models.v1 import dna_client
 import pandas as pd
 
 _dummy_intervals = pd.DataFrame({

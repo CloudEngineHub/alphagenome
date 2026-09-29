@@ -27,11 +27,12 @@ from alphagenome.data import genome
 from alphagenome.data import junction_data
 from alphagenome.data import track_data
 from alphagenome.interpretation import ism
-from alphagenome.models import dna_client
-from alphagenome.models import interval_scorers
-from alphagenome.models import junction_data_utils
-from alphagenome.models import track_data_utils
-from alphagenome.models import variant_scorers
+from alphagenome.models.v1 import dna_client
+from alphagenome.models.v1 import interval_scorers
+from alphagenome.models.v1 import junction_data_utils
+from alphagenome.models.v1 import track_data_utils
+from alphagenome.models.v1 import variant_scorers
+
 from alphagenome.protos.v1 import dna_model_pb2
 from alphagenome.protos.v1 import dna_model_service_pb2
 from alphagenome.protos.v1 import dna_model_service_pb2_grpc
