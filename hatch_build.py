@@ -25,6 +25,8 @@ _ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
 # be relative to root directory.
 _ALPHAGENOME_PROTOS = (
     'alphagenome/protos/atlas_service.proto',
+    'alphagenome/protos/v1/dna_model.proto',
+    'alphagenome/protos/v1/dna_model_service.proto',
     'alphagenome/protos/dna_model.proto',
     'alphagenome/protos/dna_model_service.proto',
     'alphagenome/protos/tensor.proto',
@@ -48,3 +50,13 @@ class GenerateProtos(interface.BuildHookInterface):
       ]
       if protoc.main(proto_args) != 0:
         raise RuntimeError(f'ERROR: {proto_args}')
+
+    # `import public` doesn't forward services, so the old-path grpc module is
+    # generated empty; re-export the v1 stubs so old imports keep working.
+    grpc_shim_path = os.path.join(
+        _ROOT_DIR, 'alphagenome/protos/dna_model_service_pb2_grpc.py'
+    )
+    with open(grpc_shim_path, 'a', encoding='utf-8') as f:
+      f.write(
+          '\nfrom alphagenome.protos.v1.dna_model_service_pb2_grpc import *\n'
+      )
