@@ -28,47 +28,56 @@ class TensorUtilsTest(parameterized.TestCase):
   @parameterized.product(
       (
           dict(
-              array=np.array([[1, 2], [3, 4]], dtype=ml_dtypes.bfloat16),
-              expected_dtype=tensor_pb2.DataType.DATA_TYPE_BFLOAT16,
+              value=True,
+              expected_dtype=tensor_pb2.DataType.DATA_TYPE_BOOL,
           ),
+          dict(value=123, expected_dtype=tensor_pb2.DataType.DATA_TYPE_INT64),
           dict(
-              array=np.array([[1, 2], [3, 4]], dtype=np.float16),
-              expected_dtype=tensor_pb2.DataType.DATA_TYPE_FLOAT16,
-          ),
-          dict(
-              array=np.array([[1, 2, 3, 4]], dtype=np.float32),
+              value=np.array(1.23, dtype=np.float32),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_FLOAT32,
           ),
           dict(
-              array=np.array([[1], [2], [3], [4]], dtype=np.float64),
+              value=np.array([[1, 2], [3, 4]], dtype=ml_dtypes.bfloat16),
+              expected_dtype=tensor_pb2.DataType.DATA_TYPE_BFLOAT16,
+          ),
+          dict(
+              value=np.array([[1, 2], [3, 4]], dtype=np.float16),
+              expected_dtype=tensor_pb2.DataType.DATA_TYPE_FLOAT16,
+          ),
+          dict(
+              value=np.array([[1, 2, 3, 4]], dtype=np.float32),
+              expected_dtype=tensor_pb2.DataType.DATA_TYPE_FLOAT32,
+          ),
+          dict(
+              value=np.array([[1], [2], [3], [4]], dtype=np.float64),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_FLOAT64,
           ),
           dict(
-              array=np.array([[1, 2], [3, 4]], dtype=np.int8),
+              value=np.array([[1, 2], [3, 4]], dtype=np.int8),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_INT8,
           ),
           dict(
-              array=np.array([1, 2, 3, 4], dtype=np.int32),
+              value=np.array([1, 2, 3, 4], dtype=np.int32),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_INT32,
           ),
           dict(
-              array=np.array([1, 2, 3, 4], dtype=np.int64),
+              value=np.array([1, 2, 3, 4], dtype=np.int64),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_INT64,
           ),
           dict(
-              array=np.array([1, 2, 3, 4], dtype=np.uint8),
+              value=np.array([1, 2, 3, 4], dtype=np.uint8),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_UINT8,
           ),
           dict(
-              array=np.array([1, 2, 3, 4], dtype=np.uint32),
+              value=np.array([1, 2, 3, 4], dtype=np.uint32),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_UINT32,
           ),
           dict(
-              array=np.array([1, 2, 3, 4], dtype=np.uint64),
+              value=np.array([1, 2, 3, 4], dtype=np.uint64),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_UINT64,
           ),
           dict(
-              array=np.array([True, False, True, False], dtype=bool),
+              value=np.array([True, False, True, False], dtype=bool),
               expected_dtype=tensor_pb2.DataType.DATA_TYPE_BOOL,
           ),
       ),
@@ -77,19 +86,19 @@ class TensorUtilsTest(parameterized.TestCase):
           tensor_pb2.CompressionType.COMPRESSION_TYPE_ZSTD,
       ],
   )
-  def test_pack_tensor(self, array, expected_dtype, compression_type):
+  def test_pack_tensor(self, value, expected_dtype, compression_type):
     packed, chunks = tensor_utils.pack_tensor(
-        array, compression_type=compression_type
+        value, compression_type=compression_type
     )
 
     self.assertEmpty(chunks)
-    self.assertSequenceEqual(packed.shape, array.shape)
+    self.assertSequenceEqual(packed.shape, np.shape(value))
     self.assertEqual(packed.data_type, expected_dtype)
 
     expected = (
-        zstandard.compress(array.tobytes())
+        zstandard.compress(np.asarray(value).tobytes())
         if compression_type == tensor_pb2.CompressionType.COMPRESSION_TYPE_ZSTD
-        else array.tobytes()
+        else np.asarray(value).tobytes()
     )
     self.assertEqual(expected, packed.array.data)
 

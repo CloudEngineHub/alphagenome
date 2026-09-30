@@ -44,8 +44,8 @@ _NUMPY_DTYPE_TO_TENSOR_DTYPE = immutabledict.immutabledict(
 def _compress_bytes(
     array: np.ndarray, compression_type: tensor_pb2.CompressionType
 ):
-  """Compresses a c-contiguous array to the specified compression type."""
-  assert array.flags.c_contiguous
+  """Compresses a NumPy array to the specified compression type."""
+  array = np.ascontiguousarray(array)
   array = array.view(np.uint8)
   match compression_type:
     case tensor_pb2.CompressionType.COMPRESSION_TYPE_ZSTD:
@@ -89,7 +89,7 @@ def pack_tensor(
     sequence of TensorChunk protos.
   """
   packed = tensor_pb2.Tensor()
-  value = np.ascontiguousarray(value)
+  value = np.asarray(value)
 
   packed.shape[:] = value.shape
   packed.data_type = _NUMPY_DTYPE_TO_TENSOR_DTYPE[value.dtype]
