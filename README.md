@@ -101,7 +101,7 @@ making a variant prediction:
 
 ```python
 from alphagenome.data import genome
-from alphagenome.models import dna_client
+from alphagenome.models.v1 import dna_client
 from alphagenome.visualization import plot_components
 import matplotlib.pyplot as plt
 
