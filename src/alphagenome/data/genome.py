@@ -59,6 +59,7 @@ class Strand(enum.IntEnum):
 
   @classmethod
   def from_str(cls, strand: str) -> Self:
+    """Creates a `Strand` enum member from '+', '-', or '.'."""
     match strand:
       case '+':
         return cls.POSITIVE
@@ -213,7 +214,7 @@ class Interval:
     """Creates an Interval from a pyranges-like dictionary.
 
     This method constructs an `Interval` object from a dictionary that follows
-    the pyranges format, such as a row from a :class:`pandas.DataFrame`
+    the pyranges format, such as a row from a `pandas.DataFrame`
     converted to a dict.
 
     The dictionary should have the following keys:
@@ -561,9 +562,9 @@ class Interval:
         within each bin (if larger than 1) will be summarized using sum().
 
     Returns:
-      Numpy array of shape (self.width // bin_size, 2) where output[:, 0]
-      represents coverage for intervals on the same strand as self and
-      output[:, 1] represents coverage of intervals on the opposite strand.
+      Coverage of shape `(self.width // bin_size, 2)`. Column 0 holds coverage
+      from intervals on the same strand as self, and column 1 from intervals on
+      the opposite strand.
     """
     # Split intervals based on strand.
     forward_intervals = []
@@ -662,6 +663,17 @@ class Variant:
       alternate_bases='TG', then the actual (alternate) sequence would be ATGT.
     name: An optional name for the variant (e.g., a dbSNP ID like rs206437).
     info: An optional dictionary for additional variant information.
+    start: The 0-based start position of the variant (`position - 1`).
+    end: The 0-based end position (`start + len(reference_bases)`).
+    reference_interval: Reference genomic `Interval` spanned by the variant.
+    is_snv: True if single-nucleotide variant (`len == 1` for ref and alt).
+    is_deletion: True if deletion (`len(reference_bases) >
+      len(alternate_bases)`).
+    is_insertion: True if insertion (`len(reference_bases) <
+      len(alternate_bases)`).
+    is_frameshift: True if indel length is not a multiple of 3.
+    is_indel: True if insertion or deletion.
+    is_structural: True if indel length is at least 50 bp.
   """
 
   chromosome: str
@@ -884,6 +896,9 @@ class Junction(Interval):
     info: An optional dictionary to store additional information.
     k: An optional integer representing the number of reads supporting the
       splice junction.
+    negative_strand: True if the junction is on the negative ('-') strand.
+    acceptor: Position of the splice acceptor site.
+    donor: Position of the splice donor site.
 
   Raises:
     ValueError: If the strand is unstranded.
@@ -1038,30 +1053,25 @@ def intersect_intervals(
   Point ranges (width == 0) are considered to intersect any range which contains
   them.
 
-  In these examples, the intersection is a point range (2,2)
-  ```
+  In these examples, the intersection is a point range `(2, 2)`::
+
       1  2  3  4
     ..|..|..|..|..
           <>        (start=2, end=2)
     ------->        (..., end=2)
-  ```
 
-  ```
       1  2  3  4
     ..|..|..|..|..
           <>        (start=2, end=2)
           <-------  (start=2, end=...)
-  ```
 
   For consistency, this means that the following results in a point
-  intersection:
+  intersection::
 
-  ```
       1  2  3  4
     ..|..|..|..|..
     ------->        (start=..., end=2)
           <-------  (start=2, end=...)
-  ```
 
   Args:
     lhs: A set of intervals.

@@ -44,10 +44,10 @@ import pandas as pd
 import tqdm.auto
 
 # Supported DNA sequence lengths.
-SEQUENCE_LENGTH_16KB = 2**14  # 16_384
-SEQUENCE_LENGTH_100KB = 2**17  # 131_072
-SEQUENCE_LENGTH_500KB = 2**19  # 524_288
-SEQUENCE_LENGTH_1MB = 2**20  # 1_048_576
+SEQUENCE_LENGTH_16KB = 2**14  #: 16,384 bp (2^14).
+SEQUENCE_LENGTH_100KB = 2**17  #: 131,072 bp (2^17).
+SEQUENCE_LENGTH_500KB = 2**19  #: 524,288 bp (2^19).
+SEQUENCE_LENGTH_1MB = 2**20  #: 1,048,576 bp (2^20).
 
 SUPPORTED_SEQUENCE_LENGTHS = {
     'SEQUENCE_LENGTH_16KB': SEQUENCE_LENGTH_16KB,
@@ -84,7 +84,7 @@ def retry_rpc(
   gRPC currently doesn't support retries for streaming RPCs. This decorator is
   an implementation of the retry logic from https://grpc.io/docs/guides/retry.
 
-  Arguments:
+  Args:
     function: Callable to retry.
     max_attempts: Maximum number of attempts to make.
     initial_backoff: Initial backoff time in seconds.

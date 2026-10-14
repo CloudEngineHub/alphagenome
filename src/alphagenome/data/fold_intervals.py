@@ -33,7 +33,13 @@ _DEFAULT_EXAMPLE_REGIONS = immutabledict.immutabledict({
 
 
 class Subset(enum.Enum):
-  """Subset of the data."""
+  """Subset of the data.
+
+  Attributes:
+    TRAIN: Training interval split.
+    VALID: Validation interval split.
+    TEST: Held-out test interval split.
+  """
 
   TRAIN = 0
   VALID = 1

@@ -35,18 +35,23 @@ DEFAULT_MAX_WORKERS = 5
 
 @enum.unique
 class ModelVersion(enum.Enum):
-  """Enumeration of all available model versions.
+  """Enumeration of available model checkpoints.
 
-  A fold is a part of the genome that is held out from training, and is used for
-  model validation.
+  Cross-validation checkpoints use the eight-fold genome split (`fold0`–`fold7`)
+  from Borzoi, where each checkpoint trains on six splits and holds out one
+  validation split and one test split (see
+  :func:`alphagenome.data.fold_intervals.get_fold_names`).
 
-  Folds are numbered from 0 to 3, and represent disjoint subsets of the genome.
-
-  A model version that is designated FOLD_#, where # is an integer from 0 to 3,
-  indicates that the model was trained with that particular fold held out.
-
-  The ALL_FOLDS version refers to the distilled model that was trained on
-  an ensemble of teacher models trained on all folds.
+  Attributes:
+    ALL_FOLDS: Distilled model trained across the full genome (default).
+    FOLD_0: Cross-validation model holding out `fold0` (valid) and `fold1`
+      (test).
+    FOLD_1: Cross-validation model holding out `fold3` (valid) and `fold4`
+      (test).
+    FOLD_2: Cross-validation model holding out `fold2` (valid) and `fold5`
+      (test).
+    FOLD_3: Cross-validation model holding out `fold6` (valid) and `fold7`
+      (test).
   """
 
   ALL_FOLDS = enum.auto()  # Default model version if None explicitly set.
@@ -57,7 +62,12 @@ class ModelVersion(enum.Enum):
 
 
 class Organism(enum.Enum):
-  """Enumeration of all the available organisms."""
+  """Enumeration of all the available organisms.
+
+  Attributes:
+    HOMO_SAPIENS: Human reference genome (GRCh38 / hg38).
+    MUS_MUSCULUS: Mouse reference genome (GRCm38 / mm10).
+  """
 
   HOMO_SAPIENS = dna_model_pb2.ORGANISM_HOMO_SAPIENS
   MUS_MUSCULUS = dna_model_pb2.ORGANISM_MUS_MUSCULUS

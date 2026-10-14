@@ -36,18 +36,19 @@ class Transcript:
   content of a transcript, namely:
 
   Attributes:
-    exons: A list of `genome.Interval`s representing exons within transcript.
-      Each `Transcript` must contain exons.
-    cds: An optional list of `genome.Interval`s representing coding sequences
-      (CDS) within a transcript. CDS include start codon and exclude stop codon.
-    start_codon: An optional list of `genome.Interval`s representing a single
-      start codon. Start codons can be split by introns, therefore might have
-      more than one genomic interval. Some coding transcripts are missing start
-      codons, e.g., ENST00000455638.6.
-    stop_codon: An optional list of `genome.Interval`s representing a single
-      stop codon. Stop codon can be split by introns, therefore might have more
-      than one genomic interval. Some transcripts coding transcripts are missing
-      stop codons, e.g., ENST00000574051.5.
+    exons: A list of `genome.Interval` instances representing exons within a
+      transcript. Each `Transcript` must contain exons.
+    cds: An optional list of `genome.Interval` instances representing coding
+      sequences (CDS) within a transcript. CDS include start codon and exclude
+      stop codon.
+    start_codon: An optional list of `genome.Interval` instances representing a
+      single start codon. Start codons can be split by introns, therefore might
+      have more than one genomic interval. Some coding transcripts are missing
+      start codons, e.g., ENST00000455638.6.
+    stop_codon: An optional list of `genome.Interval` instances representing a
+      single stop codon. Stop codon can be split by introns, therefore might
+      have more than one genomic interval. Some transcripts coding transcripts
+      are missing stop codons, e.g., ENST00000574051.5.
     transcript_id: An optional string representing a transcript id.
     gene_id: An optional string representing a gene id.
     protein_id: An optional string representing a protein id which is encoded by
@@ -165,10 +166,12 @@ class Transcript:
 
   @property
   def is_positive_strand(self) -> bool:
+    """Returns True if the transcript is on the positive ('+') strand."""
     return self.strand == genome.STRAND_POSITIVE
 
   @property
   def is_negative_strand(self) -> bool:
+    """Returns True if the transcript is on the negative ('-') strand."""
     return self.strand == genome.STRAND_NEGATIVE
 
   @functools.cached_property
@@ -188,12 +191,14 @@ class Transcript:
 
   @functools.cached_property
   def selenocysteines(self) -> list[genome.Interval]:
+    """Returns selenocysteine codon genomic intervals in the transcript."""
     if 'selenocysteines' not in self.info:
       return []
     return self.info['selenocysteines']
 
   @functools.cached_property
   def selenocysteine_pos_in_protein(self) -> list[int]:
+    """Returns 0-based amino acid positions of selenocysteines."""
     # 0-based
     selenocystein_pos = []
     for selenocysteine in self.selenocysteines:
@@ -227,6 +232,7 @@ class Transcript:
 
   @functools.cached_property
   def is_coding(self) -> bool:
+    """Returns True if the transcript has annotated coding sequences (CDS)."""
     return bool(self.cds)
 
   @functools.cached_property
@@ -244,10 +250,12 @@ class Transcript:
 
   @functools.cached_property
   def utr5(self) -> list[genome.Interval]:
+    """Returns genomic intervals for 5' untranslated regions (UTRs)."""
     return self._get_utr(self.strand != genome.STRAND_NEGATIVE)
 
   @functools.cached_property
   def utr3(self) -> list[genome.Interval]:
+    """Returns genomic intervals for 3' untranslated regions (UTRs)."""
     return self._get_utr(self.strand == genome.STRAND_NEGATIVE)
 
   def _get_utr(self, before: bool) -> list[genome.Interval]:
@@ -329,20 +337,24 @@ class Transcript:
 
   @functools.cached_property
   def splice_donor_sites(self) -> list[genome.Interval]:
+    """Returns 2-bp intronic splice donor dinucleotide intervals."""
     return self._get_splice_sites(False, intron_overhang=2, exon_overhang=0)
 
   @functools.cached_property
   def splice_acceptor_sites(self) -> list[genome.Interval]:
+    """Returns 2-bp intronic splice acceptor dinucleotide intervals."""
     return self._get_splice_sites(True, intron_overhang=2, exon_overhang=0)
 
   @functools.cached_property
   def splice_donors(self) -> list[genome.Interval]:
+    """Returns 1-bp splice donor positions along the transcript."""
     # To be consistent with the splice sites defined by intron start and end,
     # the overhang for donor and acceptor are different.
     return self._get_splice_sites(False, intron_overhang=1, exon_overhang=0)
 
   @functools.cached_property
   def splice_acceptors(self) -> list[genome.Interval]:
+    """Returns 1-bp splice acceptor positions along the transcript."""
     return self._get_splice_sites(True, intron_overhang=0, exon_overhang=1)
 
   # TODO: b/376465275 - deal with cases where intron shorter than 4 bp length.
@@ -455,10 +467,11 @@ class Transcript:
 
     Returns:
       Initialised Transcript object.
+
     Raises:
       ValueError: if the dataframe provided is invalid (no or more than one
-      transcript, transcript has inconsistent strand or chromosome,
-      transcript doesn't contain exons, CDS are not within exons, etc.)
+        transcript, transcript has inconsistent strand or chromosome,
+        transcript doesn't contain exons, CDS are not within exons, etc.)
     """
     if transcript_df.empty:
       raise ValueError('transcript_df is empty')

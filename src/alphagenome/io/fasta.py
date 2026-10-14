@@ -27,7 +27,11 @@ def reverse_complement(sequence: str) -> str:
 
 
 class FastaExtractor:
-  """FASTA file extractor."""
+  """FASTA file extractor.
+
+  Attributes:
+    sequence_names: List of all sequence (chromosome) names in the FASTA file.
+  """
 
   def __init__(self, fasta_path: str | os.PathLike[str]):
     self._faidx = pyfaidx.Faidx(

@@ -40,11 +40,12 @@ Index = PositionalIndex | tuple[PositionalIndex, TrackIndex] | TrackIndex
 class AggregationType(enum.Enum):
   """Aggregation types for downsampling/upsampling track resolutions.
 
-  SUM: Sum pooling, where values within a bin are summed. This is recommended
-    for continuous tracks where the total value within a bin is meaningful (e.g.
-    read counts, coverage).
-  MAX: Max pooling, where the maximum value within a bin is selected. This is
-    recommended for binary tracks (e.g., gene masks, regions of interest).
+  Attributes:
+    SUM: Sum pooling, where values within a bin are summed. This is recommended
+      for continuous tracks where the total value within a bin is meaningful
+      (e.g. read counts, coverage).
+    MAX: Max pooling, where the maximum value within a bin is selected. This is
+      recommended for binary tracks (e.g., gene masks, regions of interest).
   """
 
   SUM = 'sum'
@@ -91,6 +92,14 @@ class TrackData:
     resolution: The resolution of the track data in base pairs.
     interval: An optional `Interval` object representing the genomic region.
     uns: An optional dictionary to store additional unstructured data.
+    positional_axes: Tuple of positional dimension sizes in `values`.
+    num_tracks: Total number of tracks along the last axis of `values`.
+    width: Genomic width covered by the track bins (`positional_bins *
+      resolution`).
+    names: Array of track names from `metadata['name']`.
+    strands: Array of track strands from `metadata['strand']`.
+    ontology_terms: Optional list of `OntologyTerm` objects parsed from
+      `metadata['ontology_curie']`.
 
   Raises:
     ValueError: If the number of tracks in `values` does not match the  number
@@ -234,7 +243,7 @@ class TrackData:
 
     Raises:
       ValueError: If (end - start) is greater than the width, or if (end -
-      start) is not divisible by the resolution.
+        start) is not divisible by the resolution.
     """
     if (end - start) > self.width:
       raise ValueError(
@@ -316,7 +325,7 @@ class TrackData:
 
     Raises:
       ValueError: If `start_pad` or `end_pad` is not divisible by the
-      resolution.
+        resolution.
     """
     if start_pad == 0 and end_pad == 0:
       return self

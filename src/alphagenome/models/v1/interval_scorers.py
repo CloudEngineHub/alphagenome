@@ -98,10 +98,12 @@ class GeneMaskScorer:
 
   @property
   def base_interval_scorer(self) -> BaseIntervalScorer:
+    """Returns the base interval scorer enum value."""
     return BaseIntervalScorer.GENE_MASK
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this interval scorer."""
     return str(self)
 
   def __post_init__(self):
@@ -131,6 +133,7 @@ class GeneMaskScorer:
 
 # Type alias for all interval scorer types.
 IntervalScorerTypes: TypeAlias = GeneMaskScorer
+"""Union type alias of supported AlphaGenome1 interval scorer configurations."""
 
 # A dict of interval scorers, with our recommended settings for a wide range
 # of different use cases and settings.

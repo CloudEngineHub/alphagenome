@@ -46,7 +46,7 @@ class AggregationType(enum.Enum):
       and `REF` predictions, then computes the L2 norm, i.e.,
       l2_norm(log1p(`ALT`) - log1p(`REF`)).
     ACTIVE_MEAN: Maximum of means, i.e., max(mean(`ALT`), mean(`REF`)).
-    ACTIVE_SUM: Maximum of sums, i.e., max(sum(`ALT), sum(`REF`)).
+    ACTIVE_SUM: Maximum of sums, i.e., max(sum(`ALT`), sum(`REF`)).
 
   Methods:
     to_proto: Converts the aggregation type to its corresponding proto enum.
@@ -190,14 +190,17 @@ class CenterMaskScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.CENTER_MASK
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     # The 'active' scorers track the maximum of the ALT and REF, and are
     # non-directional. All other scorers track ALT - REF, with L2_DIFF
     # nondirectional and the remaining directional.
@@ -265,14 +268,17 @@ class ContactMapScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.CONTACT_MAP
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return False
 
   def to_proto(self) -> dna_model_pb2.VariantScorer:
@@ -282,6 +288,7 @@ class ContactMapScorer:
 
   @property
   def requested_output(self) -> dna_output.OutputType:
+    """Returns the `OutputType` scored by this variant scorer."""
     return dna_output.OutputType.CONTACT_MAPS
 
 
@@ -312,14 +319,17 @@ class GeneMaskLFCScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.GENE_MASK_LFC
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return True
 
   def __post_init__(self):
@@ -368,14 +378,17 @@ class GeneMaskActiveScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.GENE_MASK_ACTIVE
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return False
 
   def __post_init__(self):
@@ -426,14 +439,17 @@ class GeneMaskSplicingScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.GENE_MASK_SPLICING
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return False
 
   def __post_init__(self):
@@ -490,14 +506,17 @@ class PolyadenylationScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.PA_QTL
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return False
 
   def to_proto(self) -> dna_model_pb2.VariantScorer:
@@ -528,14 +547,17 @@ class SpliceJunctionScorer:
 
   @property
   def base_variant_scorer(self) -> BaseVariantScorer:
+    """Returns the base variant scorer enum value."""
     return BaseVariantScorer.SPLICE_JUNCTION
 
   @property
   def name(self) -> str:
+    """Returns the unique string name of this variant scorer."""
     return str(self)
 
   @property
   def is_signed(self) -> bool:
+    """Returns True if scores are directional (signed) rather than unsigned."""
     return False
 
   def to_proto(self) -> dna_model_pb2.VariantScorer:
@@ -544,7 +566,7 @@ class SpliceJunctionScorer:
     )
 
 
-# TypeVar for all variant scorer types.
+# Type alias for all variant scorer types.
 VariantScorerTypes: TypeAlias = (
     CenterMaskScorer
     | ContactMapScorer
@@ -554,6 +576,7 @@ VariantScorerTypes: TypeAlias = (
     | PolyadenylationScorer
     | SpliceJunctionScorer
 )
+"""Union type alias of supported AlphaGenome1 variant scorer configurations."""
 
 # A dict of variant scorers, with our recommended settings for a wide range
 # of different use cases and settings.
@@ -637,6 +660,11 @@ RECOMMENDED_VARIANT_SCORERS = immutabledict.immutabledict({
         aggregation_type=AggregationType.ACTIVE_SUM,
     ),
 })
+"""Immutable mapping from a short name (e.g. `'RNA_SEQ'`, `'ATAC'`) to a variant
+scorer configured with our recommended settings for that output type. Use
+:func:`~alphagenome.models.v1.variant_scorers.get_recommended_scorers` to get
+the subset supported for a given organism.
+"""
 
 
 def get_recommended_scorers(
@@ -655,7 +683,7 @@ def tidy_anndata(
     match_gene_strand: bool = True,
     include_extended_metadata: bool = True,
 ) -> pd.DataFrame:
-  """Formats an :class:`~anndata.AnnData` score as a tidy DataFrame.
+  """Formats an `AnnData` score as a tidy DataFrame.
 
   This function converts the score output from an AnnData object into a
   long-format pandas DataFrame, where each row represents:
@@ -681,7 +709,7 @@ def tidy_anndata(
     (if applicable), output type, variant/interval scorer, track name,
     ontology term, assay type, track strand, and raw score. Additional metadata
     such as biosample name and type, gtex tissue are also returned (where
-    available). See :func:`full_path_to.tidy_scores` for more details on the
+    available). See `tidy_scores` for more details on the
     returned columns.
 
   Raises:
@@ -817,7 +845,7 @@ def tidy_scores(
       additional metadata columns where available.
 
   Returns:
-    pd.DataFrame with columns:
+    One row per score, with the columns below.
 
       - variant_id (when applicable): Variant of interest (e.g.
         chr22:36201698:A>C).

@@ -55,6 +55,8 @@ class OntologyTerm:
   Attributes:
     type: The ontology type.
     id: The ID of the term within the ontology.
+    ontology_curie: Compact Uniform Resource Identifier (CURIE) string for the
+      term.
   """
 
   type: OntologyType

@@ -24,7 +24,54 @@ import pandas as pd
 
 @enum.unique
 class TranscriptType(enum.Enum):
-  """Valid Transcript types available in the GENCODE GTF."""
+  """Valid Transcript types available in the GENCODE GTF.
+
+  Attributes:
+    IG_C_GENE: Immunoglobulin constant region gene.
+    IG_C_PSEUDOGENE: Inactivated immunoglobulin constant pseudogene.
+    IG_D_GENE: Immunoglobulin diversity region gene.
+    IG_J_GENE: Immunoglobulin joining region gene.
+    IG_J_PSEUDOGENE: Inactivated immunoglobulin joining pseudogene.
+    IG_V_GENE: Immunoglobulin variable region gene.
+    IG_V_PSEUDOGENE: Inactivated immunoglobulin variable pseudogene.
+    IG_PSEUDOGENE: General inactivated immunoglobulin pseudogene.
+    MT_RRNA: Mitochondrial ribosomal RNA.
+    MT_TRNA: Mitochondrial transfer RNA.
+    TEC: To be experimentally confirmed transcript.
+    TR_C_GENE: T-cell receptor constant region gene.
+    TR_D_GENE: T-cell receptor diversity region gene.
+    TR_J_GENE: T-cell receptor joining region gene.
+    TR_J_PSEUDOGENE: Inactivated T-cell receptor joining pseudogene.
+    TR_V_GENE: T-cell receptor variable region gene.
+    TR_V_PSEUDOGENE: Inactivated T-cell receptor variable pseudogene.
+    ARTIFACT: Annotation or sequencing artifact transcript.
+    LNCRNA: Long non-coding RNA transcript.
+    MIRNA: MicroRNA transcript.
+    MISC_RNA: Miscellaneous non-coding RNA transcript.
+    NON_STOP_DECAY: Transcript lacking an in-frame stop codon.
+    NONSENSE_MEDIATED_DECAY: Transcript targeted for nonsense-mediated decay.
+    PROCESSED_PSEUDOGENE: Pseudogene derived from reverse-transcribed mRNA.
+    PROCESSED_TRANSCRIPT: Non-coding spliced transcript without an ORF.
+    PROTEIN_CODING: Transcript with an open reading frame encoding a protein.
+    PROTEIN_CODING_CDS_NOT_DEFINED: Protein-coding gene isoform without a CDS.
+    PROTEIN_CODING_LOF: Protein-coding transcript with loss-of-function allele.
+    RRNA: Ribosomal RNA transcript.
+    RRNA_PSEUDOGENE: Ribosomal RNA pseudogene.
+    RETAINED_INTRON: Alternative isoform retaining at least one intron.
+    RIBOZYME: Catalytic RNA transcript.
+    SRNA: Small bacterial-type non-coding RNA.
+    SCRNA: Small cytoplasmic RNA.
+    SCARNA: Small Cajal body-specific RNA.
+    SNRNA: Small nuclear RNA.
+    SNORNA: Small non-coding RNA guiding chemical RNA modifications (snoRNA).
+    TRANSCRIBED_PROCESSED_PSEUDOGENE: Transcribed processed pseudogene.
+    TRANSCRIBED_UNITARY_PSEUDOGENE: Transcribed unitary pseudogene.
+    TRANSCRIBED_UNPROCESSED_PSEUDOGENE: Transcribed unprocessed pseudogene.
+    TRANSLATED_PROCESSED_PSEUDOGENE: Translated processed pseudogene.
+    UNITARY_PSEUDOGENE: Species-specific pseudogene without functional parent.
+    UNPROCESSED_PSEUDOGENE: Duplicated pseudogene retaining exon-intron layout.
+    VAULT_RNA: Short non-coding RNA component of vault complexes (vRNA).
+  """
 
   IG_C_GENE = 'IG_C_gene'
   IG_C_PSEUDOGENE = 'IG_C_pseudogene'
@@ -207,23 +254,17 @@ def filter_transcript_support_level(
 ) -> pd.DataFrame:
   """Filter GTF to only transcripts with specific GENCODE support levels.
 
-  As documented in the [Ensembl
-  glossary](https://www.ensembl.org/Help/Glossary),
-  the transcript support level (TSL) indicates the degree of evidence that was
-  used to construct the transcript.
+  The transcript support level (TSL) indicates how well mRNA and EST alignments
+  support a transcript over its full length (see the Ensembl glossary,
+  https://www.ensembl.org/Help/Glossary). The levels are:
 
-  As taken from the glossary, the levels are:
-
-  | Transcript support level | Description |  |
-  |---|---|---|
-  | 1 | A transcript where all splice junctions are supported by at least one
-  non-suspect mRNA. |
-  | 2 | A transcript where the best supporting mRNA is flagged as suspect or the
-  support is from multiple ESTs |
-  | 3 | A transcript where the only support is from a single EST |
-  | 4 | A transcript where the best supporting EST is flagged as suspect |
-  | 5 | A transcript where no single transcript supports the model structure. |
-  | NA | A transcript that was not analysed for TSL. |
+  * 1: All splice junctions are supported by at least one non-suspect mRNA.
+  * 2: The best supporting mRNA is flagged as suspect, or the support is from
+    multiple ESTs.
+  * 3: The only support is from a single EST.
+  * 4: The best supporting EST is flagged as suspect.
+  * 5: No single transcript supports the model structure.
+  * NA: The transcript was not analyzed (not supported by this filter).
 
   Args:
     gtf: pd.DataFrame of GENCODE GTF entries. Must contain column
@@ -233,22 +274,9 @@ def filter_transcript_support_level(
       also be single string.
 
   Returns:
-    pd.DataFrame exactly as provided, but subset to rows with the specified
-    support level(s).
+    The input `gtf`, subset to rows with the specified support level(s).
 
-  Transcripts are scored by GENCODE according to how well mRNA and EST
-  alignments
-  match over its full length. Valid levels are:
-  '1': All splice junctions of the transcript are supported by at least one
-  non-suspect mRNA.
-  '2': The best supporting mRNA is flagged as suspect or the support is from
-  multiple ESTs.
-  '3': The only support is from a single EST.
-  '4': The best supporting EST is flagged as suspect.
-  '5': No single transcript supports the model structure.
-  'NA': The transcript was not analyzed (not supported by this filter function).
-
-  See GENCODE GTF format documentation for further details:
+  See the GENCODE GTF format documentation for further details:
   https://www.gencodegenes.org/pages/data_format.html
   """
   if isinstance(transcript_support_levels, str):
@@ -337,7 +365,7 @@ def get_gene_intervals(
     gene_symbols: Sequence[str] | None = None,
     gene_ids: Sequence[str] | None = None,
 ) -> list[genome.Interval]:
-  """Returns a list of stranded `genome.Interval`s for the given identifiers.
+  """Returns stranded `genome.Interval` objects for the given identifiers.
 
   Args:
     gtf: pd.DataFrame of GENCODE GTF entries. Must contain columns 'Feature',
@@ -349,8 +377,7 @@ def get_gene_intervals(
       is done on unpatched IDs.
 
   Returns:
-    A list of `genome.Interval`s for the given identifiers. The
-    returned list of intervals is in the same order as the input gene
+    One `genome.Interval` per identifier, in the same order as the input gene
     identifiers.
 
   Raises:
